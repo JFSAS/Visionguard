@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城市态势感知系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/situation.css">
+    <link rel="stylesheet" href="static/css/common.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="flex-direction: row; align-items: center; justify-content: flex-start; padding: 15px;">
+                <a href="index.html">
+                    <img src="static/images/logo.png" alt="Logo" class="logo" style="margin-bottom: 0; width: 40px; height: 40px;">
+                </a>
+                <h1 style="writing-mode: horizontal-tb; margin-left: 5px; font-size: 1rem;">城市态势感知系统</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item active">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>城市态势感知</span>
+                </a>
+                <a href="/profile" class="nav-item">
+                    <i class="fas fa-user-circle"></i>
+                    <span>目标画像展示</span>
+                </a>
+                <a href="/analysis" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>智能分析报告</span>
+                </a>
+                <div class="nav-item dropdown">
+                    <div class="nav-item-header">
+                        <i class="fas fa-video"></i>
+                        <span>监控管理</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="/camera-management" class="dropdown-item">监控列表</a>
+                        <a href="/add-camera" class="dropdown-item">添加监控</a>
+                    </div>
+                </div>
+                <a href="/settings" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="images/avatar.png" alt="User Avatar" class="avatar">
+                    <div class="user-details">
+                        <span class="user-name">管理员</span>
+                        <span class="user-role">系统管理员</span>
+                    </div>
+                </div>
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部栏 -->
+            <header class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="搜索监控点、区域...">
+                </div>
+                <div class="top-bar-actions">
+                    <button class="notification-btn" title="通知中心">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="theme-toggle" title="切换主题">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 内容区 -->
+            <div class="content-wrapper">
+                <!-- 概览卡片 -->
+                <section class="overview-section">
+                    <div class="section-header">
+                        <h2>系统概览</h2>
+                        <div class="date-range">
+                            <button class="active">今日</button>
+                            <button>本周</button>
+                            <button>本月</button>
+                        </div>
+                    </div>
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <div class="card-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>在线监控点</h3>
+                                <p class="card-value">{{ camera_count }}</p>
+                                <p class="card-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>2个新增</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>检测人数</h3>
+                                <p class="card-value">1,234</p>
+                                <p class="card-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>12%</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <div class="card-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>告警事件</h3>
+                                <p class="card-value">8</p>
+                                <p class="card-trend negative">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>3个待处理</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <div class="card-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>平均响应时间</h3>
+                                <p class="card-value">2.5s</p>
+                                <p class="card-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>优化0.3s</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 热力图和监控区域 -->
+                <div class="grid-container">
+                    <!-- Heat Map Section -->
+                    <div class="card heatmap-container">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-map-marked-alt"></i>
+                                热力图显示
+                            </h3>
+                            <div class="card-actions">
+                                <button class="action-btn" title="刷新热力图" id="refresh-heatmap">
+                                    <i class="fas fa-sync"></i>
+                                </button>
+                                <button class="action-btn" title="全屏显示" id="fullscreen-heatmap">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="heatmap">
+                            <img src="images/city-map.jpg" alt="城市地图" class="map-background">
+                            <div class="heatmap-overlay"></div>
+                            <div class="hotspot hotspot-1" data-location="北区商场" data-density="高" data-count="156人" data-status="人流密集">
+                                <div class="hotspot-info">
+                                    <h4>北区商场</h4>
+                                    <p>人流密度: 高</p>
+                                    <p>当前人数: 156人</p>
+                                    <p>状态: 人流密集</p>
+                                </div>
+                            </div>
+                            <div class="hotspot hotspot-2" data-location="东区公园" data-density="中" data-count="78人" data-status="正常">
+                                <div class="hotspot-info">
+                                    <h4>东区公园</h4>
+                                    <p>人流密度: 中</p>
+                                    <p>当前人数: 78人</p>
+                                    <p>状态: 正常</p>
+                                </div>
+                            </div>
+                            <div class="hotspot hotspot-3" data-location="西区停车场" data-density="高" data-count="45辆" data-status="车辆密集">
+                                <div class="hotspot-info">
+                                    <h4>西区停车场</h4>
+                                    <p>车辆密度: 高</p>
+                                    <p>当前车辆: 45辆</p>
+                                    <p>状态: 车辆密集</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Heatmap controls -->
+                            <div class="heatmap-controls">
+                                <button class="heatmap-control-btn" title="放大" id="zoom-in">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <button class="heatmap-control-btn" title="缩小" id="zoom-out">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <button class="heatmap-control-btn" title="重置视图" id="reset-view">
+                                    <i class="fas fa-compress-arrows-alt"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Heatmap legend -->
+                            <div class="heatmap-legend">
+                                <div class="legend-title">人流密度</div>
+                                <div class="legend-item">
+                                    <div class="legend-color high"></div>
+                                    <div class="legend-label">高密度</div>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color medium"></div>
+                                    <div class="legend-label">中密度</div>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color low"></div>
+                                    <div class="legend-label">低密度</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alert Section -->
+                    <div class="card alerts-container">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                实时预警信息
+                            </h3>
+                            <button class="view-all-btn">查看全部</button>
+                        </div>
+                        <div class="alerts-list">
+                            <!-- Alert items will be dynamically inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Monitoring Section -->
+                    <div class="card monitoring-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-video"></i>
+                                重点区域监控
+                            </h3>
+                            <div class="view-options">
+                                <button class="view-btn" id="grid-view-btn" title="网格视图">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button class="view-btn active" id="list-view-btn" title="列表视图">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 视频列表区域 动态生成-->
+                        <div class="monitoring-container"></div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="static/js/flv.min.js"></script>
+    <script src="static/js/video-flv.js"></script>
+    <script src="static/js/common.js"></script>
+    <script src="static/js/situation.js"></script>
+</body>
+</html> 

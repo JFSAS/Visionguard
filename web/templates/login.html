@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - Project A</title>
+    <link rel="stylesheet" href="static/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="system-info">
+            <div class="logo">
+                <img src="static/images/logo.svg" alt="系统Logo" class="system-logo">
+                <h2 class="system-name">Project A</h2>
+            </div>
+            <p class="system-version">Version 1.0.0</p>
+            <p class="system-description">智能日志分析与监控系统</p>
+        </div>
+        <div class="login-box">
+            <h1>欢迎登录</h1>
+            <form id="loginForm" onsubmit="return handleLogin(event)">
+                <div class="input-group">
+                    <input type="text" id="username" name="username" required>
+                    <label for="username">用户名</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" required>
+                    <label for="password">密码</label>
+                </div>
+                <button type="submit" class="login-btn">登录</button>
+                <div class="form-footer">
+                    没有账号？<a href="register">注册</a>
+                </div>
+            </form>
+            <div id="error-message" class="error-message"></div>
+        </div>
+        <footer class="login-footer">
+            <p>© 2024 Project A. All rights reserved.</p>
+            <p class="system-features">日志采集 · 实时监控 · 智能分析 · 告警管理</p>
+        </footer>
+    </div>
+    <script src="static/js/login.js"></script>
+</body>
+</html> 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - Project A</title>
+    <link rel="stylesheet" href="static/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="system-info">
+            <div class="logo">
+                <img src="static/images/logo.svg" alt="系统Logo" class="system-logo">
+                <h2 class="system-name">Project A</h2>
+            </div>
+            <p class="system-version">Version 1.0.0</p>
+            <p class="system-description">智能日志分析与监控系统</p>
+        </div>
+        
+        <div class="login-box">
+            <h1>创建账号</h1>
+            <form id="registerForm" onsubmit="return handleRegister(event)">
+                <div class="input-group">
+                    <input type="text" id="username" name="username" required>
+                    <label for="username">用户名</label>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="email" name="email" required>
+                    <label for="email">电子邮箱</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" required>
+                    <label for="password">密码</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                    <label for="confirm_password">确认密码</label>
+                </div>
+                <button type="submit" class="login-btn">注册</button>
+                <div class="form-footer">
+                    已有账号？<a href="/login">登录</a>
+                </div>
+            </form>
+            <div id="error-message" class="error-message"></div>
+        </div>
+        
+        <footer class="login-footer">
+            <p>© 2024 Project A. All rights reserved.</p>
+            <p class="system-features">日志采集 · 实时监控 · 智能分析 · 告警管理</p>
+        </footer>
+    </div>
+    
+    <script src="static/js/register.js"></script>
+</body>
+</html> 

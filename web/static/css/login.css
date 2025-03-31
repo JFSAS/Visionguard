@@ -1,0 +1,158 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* 系统信息样式 */
+.system-info {
+    text-align: center;
+    color: #2c3e50;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.system-logo {
+    width: 48px;
+    height: 48px;
+}
+
+.system-name {
+    font-size: 28px;
+    font-weight: 600;
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.system-version {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.system-description {
+    font-size: 16px;
+    color: #34495e;
+    font-weight: 500;
+}
+
+/* 登录框样式 */
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+label {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    font-size: 16px;
+}
+
+input:focus + label,
+input:not(:placeholder-shown) + label {
+    top: 0;
+    transform: translateY(-50%) scale(0.8);
+    background: white;
+    padding: 0 6px;
+    color: #4a90e2;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+    background: #357abd;
+}
+
+.error-message {
+    color: #ff4d4f;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+    min-height: 20px;
+}
+
+/* 页脚样式 */
+.login-footer {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+
+.login-footer p {
+    margin: 4px 0;
+}
+
+.system-features {
+    color: #34495e;
+    font-weight: 500;
+    margin-top: 8px;
+} 

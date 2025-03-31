@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控详情 - 城市态势感知系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/monitor-detail.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="navbar">
+                <div style="display: flex; align-items: center;">
+                    <div class="logo">
+                        <a href="index.html">
+                            <img src="static/images/logo.png" alt="Logo">
+                        </a>
+                    </div>
+                    <h1 style="writing-mode: horizontal-tb !important; margin-left: 5px; font-size: 1.2rem;">城市态势感知系统</h1>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="dashboard">城市态势感知</a></li>
+                    <li><a href="profile" class="active">目标画像展示</a></li>
+                    <li><a href="analysis" class="active">智能分析报告</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="monitor-detail-container">
+                <!-- 左侧区域 -->
+                <div class="left-section">
+                    <!-- 视频播放区域 -->
+                    <div class="video-section">
+                        <div class="video-header">
+                            <h2 id="camera-title">监控点详情</h2>
+                            <div class="camera-status">
+                                <span class="status status-success"></span>
+                                <span id="camera-status-text">在线</span>
+                            </div>
+                        </div>
+                        <div class="video-player">
+                            <video id="main-video" autoplay muted loop playsinline preload="auto" controls>
+                                <source src="videos/1.mp4" type="video/mp4">
+                                您的浏览器不支持视频标签
+                            </video>
+                            <div class="tracking-boxes" id="tracking-boxes"></div>
+                            <div class="video-controls">
+                                <button class="control-btn" id="fullscreen-btn" title="全屏">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                                <button class="control-btn" id="snapshot-btn" title="截图">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 人员记录列表 -->
+                    <div class="person-records">
+                        <h4><i class="fas fa-user-friends"></i> 人员记录</h4>
+                        <div class="person-filters">
+                            <button class="filter-btn active" data-filter="all">全部</button>
+                            <button class="filter-btn" data-filter="normal">正常</button>
+                            <button class="filter-btn" data-filter="suspicious">可疑</button>
+                        </div>
+                        <div class="person-list" id="person-list">
+                            <!-- 人员列表将通过JavaScript动态添加 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧区域 -->
+                <div class="right-section">
+                    <!-- 检测信息区域 -->
+                    <div class="detection-section">
+                        <h3><i class="fas fa-chart-line"></i> 实时检测数据</h3>
+                        <div class="detection-stats">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="people-count">0</span>
+                                    <span class="stat-label">当前人数</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="alert-count">0</span>
+                                    <span class="stat-label">异常事件</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="last-update">-</span>
+                                    <span class="stat-label">最后更新</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 检测事件列表 -->
+                        <div class="detection-events">
+                            <h4>检测事件记录</h4>
+                            <div class="events-list" id="events-list">
+                                <!-- 事件列表将通过JavaScript动态添加 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 城市态势感知系统 - 技术支持: 安全监控部门</p>
+        </div>
+    </footer>
+
+    <script src="js/common.js"></script>
+    <script src="js/monitor-detail.js"></script>
+</body>
+</html> 

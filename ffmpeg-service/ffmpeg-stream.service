@@ -1,0 +1,13 @@
+[Unit]
+Description=FFmpeg Stream Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/bin/bash /opt/ffmpeg-stream/ffmpeg-stream.sh
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
