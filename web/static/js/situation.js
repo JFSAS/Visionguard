@@ -17,11 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add hotspot click events
     setupHotspotEvents();
-    
-    // Setup view switching
-    setupViewSwitching();
-    
-    // Setup main video and video list interactions
 
 });
 
@@ -482,76 +477,6 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Setup view switching between grid and list views
-function setupViewSwitching() {
-    const gridViewBtn = document.getElementById('grid-view-btn');
-    const listViewBtn = document.getElementById('list-view-btn');
-    const monitoringContainer = document.querySelector('.monitoring-container');
-    
-    if (!gridViewBtn || !listViewBtn || !monitoringContainer) return;
-    
-    // Set initial view based on active button
-    if (gridViewBtn.classList.contains('active')) {
-        monitoringContainer.classList.add('grid-view');
-    } else {
-        monitoringContainer.classList.remove('grid-view');
-    }
-    
-    // Grid view button click handler
-    gridViewBtn.addEventListener('click', function() {
-        if (!this.classList.contains('active')) {
-            this.classList.add('active');
-            listViewBtn.classList.remove('active');
-            monitoringContainer.classList.add('grid-view');
-            showNotification('已切换到网格视图', 'info');
-            
-            // Save preference to localStorage
-            localStorage.setItem('monitoringViewPreference', 'grid');
-        }
-    });
-    
-    // List view button click handler
-    listViewBtn.addEventListener('click', function() {
-        if (!this.classList.contains('active')) {
-            this.classList.add('active');
-            gridViewBtn.classList.remove('active');
-            monitoringContainer.classList.remove('grid-view');
-            showNotification('已切换到列表视图', 'info');
-            
-            // Save preference to localStorage
-            localStorage.setItem('monitoringViewPreference', 'list');
-        }
-    });
-    
-    // Load user preference from localStorage if available
-    const savedViewPreference = localStorage.getItem('monitoringViewPreference');
-    if (savedViewPreference === 'grid') {
-        gridViewBtn.click();
-    } else if (savedViewPreference === 'list') {
-        listViewBtn.click();
-    }
-    
-    // Add hover effect to camera feeds to show "点击查看详情" message
-    const cameraFeeds = document.querySelectorAll('.camera-feed');
-    cameraFeeds.forEach(feed => {
-        const cameraLink = feed.querySelector('.camera-link');
-        if (cameraLink) {
-            cameraLink.addEventListener('mouseenter', function() {
-                console.log('Hovering camera feed');
-            });
-            
-            cameraLink.addEventListener('click', function(e) {
-                const href = this.getAttribute('href');
-                const locationName = feed.querySelector('.camera-location')?.textContent.trim() || '监控点';
-                console.log(`跳转到监控详情页: ${locationName}`);
-                
-                // We don't prevent default here to allow the link to work
-                showNotification(`正在加载 ${locationName} 的详细监控信息...`, 'info');
-            });
-        }
-    });
-}
-
 // Setup  video list interactions
 function setupVideoMainInteractions() {
     const mainVideo = document.querySelector('.mainVideo');
@@ -576,49 +501,30 @@ function setupVideoMainInteractions() {
             const activeCamera = document.querySelector('.camera-feed.active');
             if (activeCamera) {
                 const cameraId = activeCamera.getAttribute('data-id');
-                const cameraTitle = activeCamera.getAttribute('data-title');
+                const cameraName = mainVideoTitle.textContent;
                 
                 // 跳转到详情页
-                const detailUrl = `monitor-detail.html?id=${cameraId}&title=${encodeURIComponent(cameraTitle)}`;
-                window.location.href = detailUrl;
+                window.location.href = `monitor-detail?id=${cameraId}`;
+                
+                // 显示通知
+                showNotification(`正在加载 ${cameraName} 的详细监控信息...`, 'info');
             }
         });
     }
-
-    
 
     if (mainVideoFullscreenBtn) {
         mainVideoFullscreenBtn.addEventListener('click', function() {
             toggleFullscreen(mainVideo);
         });
     }
-    
-
-
 }
 
 function setupVideoListInteractions(){
-
     const cameraFeeds = document.querySelectorAll('.camera-feed');
     const cameraDetailBtns = document.querySelectorAll('.camera-detail-btn');  
 
-    
-    // 设置列表项详情按钮点击事件
-    cameraDetailBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            // 阻止事件冒泡，避免触发列表项的点击事件
-            e.stopPropagation();
-            
-            const cameraId = this.getAttribute('data-id');
-            const cameraTitle = this.getAttribute('data-title');
-            
-            // 跳转到详情页
-            const detailUrl = `monitor-detail.html?id=${cameraId}&title=${encodeURIComponent(cameraTitle)}`;
-            window.location.href = detailUrl;
-            
-            showNotification(`正在加载 ${cameraTitle} 的详细监控信息...`, 'info');
-        });
-    });
+    // 设置摄像头"查看"按钮点击事件
+    setupCameraDetailButtons();
     
     //为监控点列表每个卡片添加点击事件
     cameraFeeds.forEach(feed => {
@@ -638,42 +544,26 @@ function setupVideoListInteractions(){
     })
 }
 
-// 修改 updateMainVideo 函数
-function updateMainVideo(videoElement) {
-    const mainVideo = document.querySelector('.mainVideo');
-    const mainVideoTitle = document.getElementById('main-video-title');
-    const mainVideoDescription = document.getElementById('main-video-description');
-    const mainVideoPeople = document.getElementById('main-video-people');
-    const mainVideoAlerts = document.getElementById('main-video-alerts');
-    const mainVideoTime = document.getElementById('main-video-time');
+// 设置摄像头"查看"按钮点击事件
+function setupCameraDetailButtons() {
+    const viewButtons = document.querySelectorAll('.action-btn.view');
     
-    if (!mainVideo || !mainVideoTitle || !mainVideoDescription) {
-        console.error('主视频元素或视频列表未找到');
-        return;
-    }
-    
-    // 获取父元素（camera-feed）
-    const cameraFeed = videoElement.closest('.camera-feed');
-    if (!cameraFeed) {
-        console.error('未找到摄像头父元素');
-        return;
-    }
-    
-    // 更新主视频信息
-    mainVideoTitle.textContent = cameraFeed.getAttribute('data-title');
-    mainVideoDescription.textContent = cameraFeed.getAttribute('data-description');
-    mainVideoPeople.textContent = cameraFeed.getAttribute('data-people');
-    mainVideoAlerts.textContent = cameraFeed.getAttribute('data-alerts');
-    mainVideoTime.textContent = cameraFeed.getAttribute('data-time');
-    
-    // 获取摄像头视频流并播放
-    const srcStream = videoElement.getAttribute('src_stream');
-    if (srcStream) {
-        // 使用 requestAnimationFrame 确保在下一帧执行
-        requestAnimationFrame(() => {
-            playFlvVideo(srcStream, mainVideo);
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            // 阻止事件冒泡，防止触发卡片的点击事件
+            e.stopPropagation();
+            
+            // 获取摄像头ID
+            const cameraId = this.getAttribute('data-id');
+            const cameraName = this.getAttribute('data-name');
+            
+            // 跳转到详情页
+            window.location.href = `monitor-detail?id=${cameraId}`;
+            
+            // 显示通知
+            showNotification(`正在加载 ${cameraName} 的详细监控信息...`, 'info');
         });
-    }
+    });
 }
 
 // Render camera list
@@ -776,7 +666,7 @@ function renderCameraList(cameras) {
                 </div>
                 <div class="camera-id">ID: ${camera.id}</div>
                 <div class="camera-actions">
-                    <button class="action-btn view" title="查看详情">
+                    <button class="action-btn view" title="查看详情" data-id="${camera.id}" data-name="${camera.camera_name}" data-location="${camera.location || '未知位置'}">
                         <i class="fas fa-eye"></i> 查看
                     </button>
                     <button class="action-btn edit" title="编辑设置">
@@ -848,6 +738,7 @@ function updateMainVideo(videoElement) {
     if (srcStream) {
         // 使用 requestAnimationFrame 确保在下一帧执行
         requestAnimationFrame(() => {
+            console.log('更新主视频', srcStream, mainVideo)
             playFlvVideo(srcStream, mainVideo);
         });
     }

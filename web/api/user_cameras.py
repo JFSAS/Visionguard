@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, request, g
 from models import db, UserCamera
 from api.auth import login_required
 import json
+import random
+from datetime import datetime
 
 user_cameras_bp = Blueprint('user_cameras', __name__)
 
@@ -134,48 +136,48 @@ def delete_user_camera(camera_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-@user_cameras_bp.route('/toggle-favorite/<int:camera_id>', methods=['POST'])
+@user_cameras_bp.route('/<int:camera_id>', methods=['GET'])
 @login_required
-def toggle_favorite(camera_id):
-    """Toggle favorite status of a camera"""
+def get_user_camera(camera_id):
+    """Get a specific camera by ID for the logged-in user"""
     try:
         user_id = g.user.id
         
-        # Find the camera
+        # 根据ID查找用户摄像头
         camera = UserCamera.query.filter_by(id=camera_id, user_id=user_id).first()
         if not camera:
             return jsonify({'error': 'Camera not found'}), 404
         
-        # Toggle favorite status
-        camera.toggle_favorite()
-        
-        return jsonify({
+        # 将摄像头数据转换为字典
+        camera_data = {
             'id': camera.id,
-            'is_favorite': camera.is_favorite,
-            'message': f'Camera {"added to" if camera.is_favorite else "removed from"} favorites'
-        })
+            'camera_id': camera.camera_id,
+            'camera_name': camera.camera_name,
+            'camera_type': camera.camera_type,
+            'description': camera.description,
+            'location': camera.location,
+            'stream_url': camera.stream_url,
+            'width': camera.width,
+            'height': camera.height,
+            'fps': camera.fps,
+            'is_active': True,  # 假设用户添加的摄像头都是活跃的
+            'status': '在线',
+            'created_at': camera.created_at.isoformat() if camera.created_at else None,
+            'last_accessed': camera.last_accessed.isoformat() if camera.last_accessed else None,
+            # 添加模拟统计数据
+            'stats': {
+                'people_count': random.randint(0, 20),
+                'alert_count': random.randint(0, 5),
+                'last_update': '刚刚'
+            }
+        }
+        
+        # 更新最后访问时间
+        camera.last_accessed = datetime.now()
+        db.session.commit()
+        
+        return jsonify(camera_data)
     except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-@user_cameras_bp.route('/toggle-active/<int:camera_id>', methods=['POST'])
-@login_required
-def toggle_active(camera_id):
-    """Toggle active status of a camera"""
-    try:
-        user_id = g.user.id
-        
-        # Find the camera
-        camera = UserCamera.query.filter_by(id=camera_id, user_id=user_id).first()
-        if not camera:
-            return jsonify({'error': 'Camera not found'}), 404
-        
-        # Toggle active status
-        camera.toggle_active()
-        
-        return jsonify({
-            'id': camera.id,
-            'is_active': camera.is_active,
-            'message': f'Camera {"activated" if camera.is_active else "deactivated"}'
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500 

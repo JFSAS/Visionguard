@@ -25,7 +25,10 @@ function playFlvVideo(videoUrl, vElement, options = {}) {
         hasVideo: true,
         enableWorker: true,
         stashInitialSize: 128,
-        enableStashBuffer: false
+        enableStashBuffer: false,
+        lazyLoadMaxDuration: 3,
+        lazyLoad: false,
+        seekType: 'range',
     };
 
     // 合并用户配置

@@ -1,6 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_file
 from datetime import datetime
 import random
+import re
+import os
+import tempfile
 
 analysis_bp = Blueprint('analysis', __name__)
 
@@ -114,3 +117,115 @@ def get_confidence_charts():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500 
+    
+
+@analysis_bp.route('/extract-frame-by-time', methods=['GET'])
+def extract_frame_by_time():
+    """提取指定时间点的视频帧"""
+    try:
+        # 获取请求参数
+        base_time_str = request.args.get('base_time', '2025-04-02 16:27:38.131')
+        offset_seconds = float(request.args.get('offset', '0.467'))
+        
+        # 解析基础时间
+        base_time = datetime.strptime(base_time_str, '%Y-%m-%d %H:%M:%S.%f')
+        
+        # 计算目标时间点
+        target_time_seconds = base_time.timestamp() + offset_seconds
+        target_time = datetime.fromtimestamp(target_time_seconds)
+        
+        # 格式化目标时间，用于日志记录
+        target_time_str = target_time.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        
+        print(f"正在定位时间点: {target_time_str}")
+        
+        # 定义FLV文件目录
+        flv_dir = '/var/recordings'  # 根据您的实际环境调整
+        
+        # 查找匹配的FLV文件
+        flv_files = []
+        file_pattern = re.compile(r'(\d+)-(\d+)-(\d{8})-(\d{6})\.flv$')
+        
+        for filename in os.listdir(flv_dir):
+            if filename.endswith('.flv'):
+                match = file_pattern.search(filename)
+                if match:
+                    # 从文件名解析时间戳
+                    file_date = match.group(3)  # 例如 20250402
+                    file_time = match.group(4)  # 例如 160450
+                    
+                    # 转换为datetime对象
+                    file_datetime_str = f"{file_date[:4]}-{file_date[4:6]}-{file_date[6:]} {file_time[:2]}:{file_time[2:4]}:{file_time[4:]}"
+                    file_datetime = datetime.strptime(file_datetime_str, '%Y-%m-%d %H:%M:%S')
+                    
+                    # 获取文件大小和修改时间
+                    file_path = os.path.join(flv_dir, filename)
+                    file_size = os.path.getsize(file_path)
+                    file_mtime = os.path.getmtime(file_path)
+                    
+                    flv_files.append({
+                        'filename': filename,
+                        'path': file_path,
+                        'datetime': file_datetime,
+                        'size': file_size,
+                        'mtime': file_mtime
+                    })
+        
+        # 根据时间点找出可能包含该帧的文件
+        candidates = []
+        for file_info in flv_files:
+            # 估算文件结束时间 (假设大约10分钟)
+            approx_end_time = file_info['datetime'].timestamp() + (file_info['size'] / 1000000)  # 每MB约1秒钟
+            
+            # 如果目标时间在文件开始和结束时间之间，则为候选文件
+            if file_info['datetime'].timestamp() <= target_time_seconds <= approx_end_time:
+                candidates.append(file_info)
+        
+        if not candidates:
+            return jsonify({'error': '未找到匹配的FLV文件'}), 404
+        
+        # 按时间排序候选文件
+        candidates.sort(key=lambda x: x['datetime'])
+        
+        # 创建临时文件
+        with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as temp:
+            temp_filename = temp.name
+        
+        # 尝试从最可能的候选文件中提取帧
+        found = False
+        for candidate in candidates:
+            try:
+                file_path = candidate['path']
+                print(f"正在从文件 {candidate['filename']} 中查找")
+                
+                # 计算在文件中的偏移秒数
+                file_offset = target_time_seconds - candidate['datetime'].timestamp()
+                
+                # 使用FFmpeg直接定位到时间点并提取帧
+                import subprocess
+                cmd = [
+                    'ffmpeg', '-i', file_path, 
+                    '-ss', str(file_offset),
+                    '-frames:v', '1',
+                    '-q:v', '2', 
+                    temp_filename,
+                    '-y'
+                ]
+                subprocess.run(cmd, check=True, stderr=subprocess.PIPE)
+                
+                found = True
+                print(f"成功从文件 {candidate['filename']} 的 {file_offset} 秒处提取帧")
+                break
+                
+            except Exception as e:
+                print(f"尝试提取 {candidate['filename']} 失败: {str(e)}")
+                continue
+        
+        if not found:
+            return jsonify({'error': '未能提取到帧'}), 404
+        
+        # 返回提取的帧
+        return send_file(temp_filename, mimetype='image/jpeg')
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

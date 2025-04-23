@@ -1,14 +1,14 @@
 // Intelligent Analysis Reports Page JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Fetch and generate security briefing
-    fetchSecurityBriefing();
+    // Generate security briefing
+    generateSecurityBriefing();
     
-    // Fetch and initialize case graph
-    fetchCaseGraph();
+    // Initialize case graph
+    initializeCaseGraph();
     
-    // Fetch and initialize confidence charts
-    fetchConfidenceCharts();
+    // Initialize confidence charts
+    initializeConfidenceCharts();
     
     // Add refresh button functionality
     document.getElementById('refresh-btn').addEventListener('click', function() {
@@ -16,64 +16,72 @@ document.addEventListener('DOMContentLoaded', function() {
         refreshBtn.disabled = true;
         refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 刷新中...';
         
-        // Call all API endpoints to refresh data
-        Promise.all([
-            fetchSecurityBriefing(),
-            fetchCaseGraph(),
-            fetchConfidenceCharts()
-        ]).then(() => {
+        // Simulate refresh delay
+        setTimeout(() => {
             showNotification('分析报告已更新', 'success');
             refreshBtn.disabled = false;
             refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> 刷新报告';
-        }).catch(error => {
-            console.error('Error refreshing data:', error);
-            showNotification('更新报告失败', 'error');
-            refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> 刷新报告';
-        });
+            
+            // Regenerate data
+            generateSecurityBriefing();
+            initializeCaseGraph();
+            initializeConfidenceCharts();
+        }, 2000);
     });
 });
 
-// Fetch security briefing data from API
-function fetchSecurityBriefing() {
-    return fetch('/api/analysis/security-briefing')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Update the briefing date
-            const briefingDate = document.querySelector('.briefing-date');
-            if (briefingDate) {
-                briefingDate.textContent = formatDate(new Date(data.date));
-            }
-            
-            // Update stats
-            const statValues = document.querySelectorAll('.stat-value');
-            statValues.forEach(stat => {
-                const statKey = stat.getAttribute('data-stat-key');
-                if (statKey && data.stats[statKey] !== undefined) {
-                    stat.textContent = data.stats[statKey];
-                }
-            });
-            
-            // Update incident list
-            updateIncidentList(data.incidents);
-        })
-        .catch(error => {
-            console.error('Error fetching security briefing:', error);
-            showNotification('获取安全简报失败', 'error');
-        });
+// Generate security briefing with mock data
+function generateSecurityBriefing() {
+    const briefingDate = document.querySelector('.briefing-date');
+    const currentDate = new Date();
+    briefingDate.textContent = formatDate(currentDate);
+    
+    // Generate random stats
+    const statValues = document.querySelectorAll('.stat-value');
+    statValues.forEach(stat => {
+        const min = parseInt(stat.getAttribute('data-min') || 0);
+        const max = parseInt(stat.getAttribute('data-max') || 100);
+        stat.textContent = Math.floor(Math.random() * (max - min + 1)) + min;
+    });
+    
+    // Generate incident list
+    generateIncidentList();
 }
 
-// Update the incident list with data from API
-function updateIncidentList(incidents) {
+// Generate incident list with mock data
+function generateIncidentList() {
     const incidentList = document.querySelector('.incident-list');
     if (!incidentList) return;
     
     incidentList.innerHTML = '';
+    
+    const incidents = [
+        {
+            time: '08:15',
+            description: '北区商场发现可疑人员，已派遣警力核查',
+            severity: 'high'
+        },
+        {
+            time: '09:30',
+            description: '东区公园监控发现异常行为，已记录备案',
+            severity: 'medium'
+        },
+        {
+            time: '10:45',
+            description: '西区停车场多辆无牌照车辆聚集，已通知交警部门',
+            severity: 'high'
+        },
+        {
+            time: '12:30',
+            description: '中央广场人流密度超过安全阈值，已加强现场管控',
+            severity: 'medium'
+        },
+        {
+            time: '14:10',
+            description: '南区3号监控设备离线，技术人员已前往检查',
+            severity: 'low'
+        }
+    ];
     
     incidents.forEach(incident => {
         const incidentItem = document.createElement('li');
@@ -90,201 +98,284 @@ function updateIncidentList(incidents) {
     });
 }
 
-// Fetch case graph data from API
-function fetchCaseGraph() {
-    return fetch('/api/analysis/case-graph')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            initializeCaseGraph(data);
-        })
-        .catch(error => {
-            console.error('Error fetching case graph data:', error);
-            showNotification('获取案例图表数据失败', 'error');
-        });
-}
-
-// Initialize case graph with data from API
-function initializeCaseGraph(caseData) {
-    const caseGraphContainer = document.getElementById('case-graph');
-    if (!caseGraphContainer) return;
+// Initialize case graph with mock data
+function initializeCaseGraph() {
+    const graphContainer = document.querySelector('.graph-container');
+    if (!graphContainer) return;
     
-    // Clear previous chart if it exists
-    caseGraphContainer.innerHTML = '';
+    // Clear previous graph
+    graphContainer.innerHTML = '';
     
-    // Prepare data for chart
-    const labels = caseData.map(item => item.type);
-    const totalCounts = caseData.map(item => item.count);
-    const resolvedCounts = caseData.map(item => item.resolved);
-    
-    // Create chart
-    const ctx = document.createElement('canvas');
-    caseGraphContainer.appendChild(ctx);
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: '总数',
-                    data: totalCounts,
-                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: '已解决',
-                    data: resolvedCounts,
-                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }
-            ]
+    // Create nodes
+    const nodes = [
+        {
+            id: 1,
+            x: 50,
+            y: 50,
+            type: 'primary',
+            image: '../images/suspect1.png',
+            info: '主要嫌疑人，多次出现在案发现场附近'
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: '案例类型统计',
-                    font: {
-                        size: 16
-                    }
-                },
-                legend: {
-                    position: 'top'
-                }
-            }
+        {
+            id: 2,
+            x: 30,
+            y: 70,
+            type: 'secondary',
+            image: '../images/suspect2.png',
+            info: '疑似同伙，与主要嫌疑人有多次接触'
+        },
+        {
+            id: 3,
+            x: 70,
+            y: 30,
+            type: 'secondary',
+            image: '../images/suspect3.png',
+            info: '疑似同伙，负责监视周围环境'
+        },
+        {
+            id: 4,
+            x: 80,
+            y: 60,
+            type: 'tertiary',
+            image: '../images/suspect4.png',
+            info: '可能的关联人员，需进一步调查'
+        },
+        {
+            id: 5,
+            x: 20,
+            y: 40,
+            type: 'tertiary',
+            image: '../images/suspect5.png',
+            info: '可能的关联人员，需进一步调查'
         }
+    ];
+    
+    // Create connections
+    const connections = [
+        { from: 1, to: 2 },
+        { from: 1, to: 3 },
+        { from: 2, to: 5 },
+        { from: 3, to: 4 },
+        { from: 1, to: 4, dashed: true }
+    ];
+    
+    // Draw connections
+    connections.forEach(conn => {
+        const fromNode = nodes.find(n => n.id === conn.from);
+        const toNode = nodes.find(n => n.id === conn.to);
+        
+        if (fromNode && toNode) {
+            const line = document.createElement('div');
+            line.className = `graph-line ${conn.dashed ? 'dashed' : ''}`;
+            
+            // Calculate line position and rotation
+            const x1 = fromNode.x;
+            const y1 = fromNode.y;
+            const x2 = toNode.x;
+            const y2 = toNode.y;
+            
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            
+            line.style.width = `${length}%`;
+            line.style.left = `${x1}%`;
+            line.style.top = `${y1}%`;
+            line.style.transform = `rotate(${angle}deg)`;
+            
+            if (conn.dashed) {
+                line.style.borderTop = '2px dashed rgba(255, 255, 255, 0.2)';
+            }
+            
+            graphContainer.appendChild(line);
+        }
+    });
+    
+    // Draw nodes
+    nodes.forEach(node => {
+        const nodeElement = document.createElement('div');
+        nodeElement.className = `graph-node ${node.type}`;
+        nodeElement.style.left = `${node.x}%`;
+        nodeElement.style.top = `${node.y}%`;
+        nodeElement.innerHTML = `<img src="${node.image}" alt="嫌疑人">`;
+        
+        const tooltip = document.createElement('div');
+        tooltip.className = 'graph-tooltip';
+        tooltip.textContent = node.info;
+        tooltip.style.left = `${node.x > 50 ? '-220px' : '70px'}`;
+        tooltip.style.top = '0';
+        
+        nodeElement.addEventListener('mouseenter', () => {
+            tooltip.style.display = 'block';
+        });
+        
+        nodeElement.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
+        
+        graphContainer.appendChild(nodeElement);
+        graphContainer.appendChild(tooltip);
     });
 }
 
-// Fetch confidence charts data from API
-function fetchConfidenceCharts() {
-    return fetch('/api/analysis/confidence-charts')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            initializeConfidenceCharts(data);
-        })
-        .catch(error => {
-            console.error('Error fetching confidence charts data:', error);
-            showNotification('获取置信度图表数据失败', 'error');
-        });
+// Initialize confidence charts
+function initializeConfidenceCharts() {
+    // In a real application, you would use a charting library like Chart.js
+    // For this static demo, we'll create simple visual representations
+    
+    // Confidence by location chart
+    createBarChart('location-chart', [
+        { label: '北区商场', value: 85 },
+        { label: '东区公园', value: 72 },
+        { label: '西区停车场', value: 91 },
+        { label: '中央广场', value: 64 },
+        { label: '南区', value: 53 }
+    ]);
+    
+    // Confidence by time chart
+    createLineChart('time-chart', [
+        { label: '06:00', value: 45 },
+        { label: '09:00', value: 65 },
+        { label: '12:00', value: 78 },
+        { label: '15:00', value: 82 },
+        { label: '18:00', value: 70 },
+        { label: '21:00', value: 55 }
+    ]);
 }
 
-// Initialize confidence charts with data from API
-function initializeConfidenceCharts(data) {
-    // Create person detection confidence chart
-    createLineChart('person-confidence-chart', data.person_confidence);
+// Create a simple bar chart
+function createBarChart(containerId, data) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
     
-    // Create vehicle detection confidence chart
-    createLineChart('vehicle-confidence-chart', data.vehicle_confidence);
+    container.innerHTML = '';
     
-    // Create anomaly detection confidence chart
-    createLineChart('anomaly-confidence-chart', data.anomaly_confidence);
+    const chartHeight = 200;
+    const barWidth = 100 / data.length;
+    
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'bar-chart';
+    chartContainer.style.height = `${chartHeight}px`;
+    chartContainer.style.display = 'flex';
+    chartContainer.style.alignItems = 'flex-end';
+    chartContainer.style.justifyContent = 'space-around';
+    
+    data.forEach(item => {
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.width = `${barWidth - 10}%`;
+        bar.style.height = `${item.value * chartHeight / 100}px`;
+        bar.style.backgroundColor = 'var(--primary-color)';
+        bar.style.position = 'relative';
+        
+        const label = document.createElement('div');
+        label.className = 'chart-label';
+        label.textContent = item.label;
+        label.style.position = 'absolute';
+        label.style.bottom = '-25px';
+        label.style.left = '0';
+        label.style.right = '0';
+        label.style.textAlign = 'center';
+        label.style.fontSize = '0.8rem';
+        
+        const value = document.createElement('div');
+        value.className = 'chart-value';
+        value.textContent = `${item.value}%`;
+        value.style.position = 'absolute';
+        value.style.top = '-25px';
+        value.style.left = '0';
+        value.style.right = '0';
+        value.style.textAlign = 'center';
+        value.style.fontSize = '0.8rem';
+        
+        bar.appendChild(label);
+        bar.appendChild(value);
+        chartContainer.appendChild(bar);
+    });
+    
+    container.appendChild(chartContainer);
 }
 
-// Create a line chart
+// Create a simple line chart
 function createLineChart(containerId, data) {
     const container = document.getElementById(containerId);
     if (!container) return;
     
-    // Clear previous chart if it exists
     container.innerHTML = '';
     
-    // Create canvas for the chart
-    const canvas = document.createElement('canvas');
-    container.appendChild(canvas);
+    const chartHeight = 200;
+    const chartWidth = container.clientWidth;
+    const pointWidth = chartWidth / (data.length - 1);
     
-    // Create the chart
-    new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: data.title,
-                data: data.data,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: 50,
-                    max: 100,
-                    title: {
-                        display: true,
-                        text: '置信度 (%)'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: '月份'
-                    }
-                }
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: data.title,
-                    font: {
-                        size: 16
-                    }
-                }
-            }
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'line-chart';
+    chartContainer.style.height = `${chartHeight}px`;
+    chartContainer.style.position = 'relative';
+    
+    // Create line
+    let pathD = '';
+    data.forEach((item, index) => {
+        const x = index * pointWidth;
+        const y = chartHeight - (item.value * chartHeight / 100);
+        
+        if (index === 0) {
+            pathD += `M ${x} ${y}`;
+        } else {
+            pathD += ` L ${x} ${y}`;
         }
+        
+        // Create point
+        const point = document.createElement('div');
+        point.className = 'chart-point';
+        point.style.position = 'absolute';
+        point.style.left = `${x}px`;
+        point.style.top = `${y}px`;
+        point.style.width = '8px';
+        point.style.height = '8px';
+        point.style.borderRadius = '50%';
+        point.style.backgroundColor = 'var(--accent-color)';
+        point.style.transform = 'translate(-50%, -50%)';
+        
+        // Create label
+        const label = document.createElement('div');
+        label.className = 'chart-label';
+        label.textContent = item.label;
+        label.style.position = 'absolute';
+        label.style.bottom = '-25px';
+        label.style.left = `${x}px`;
+        label.style.transform = 'translateX(-50%)';
+        label.style.fontSize = '0.8rem';
+        
+        // Create value
+        const value = document.createElement('div');
+        value.className = 'chart-value';
+        value.textContent = `${item.value}%`;
+        value.style.position = 'absolute';
+        value.style.top = `${y - 20}px`;
+        value.style.left = `${x}px`;
+        value.style.transform = 'translateX(-50%)';
+        value.style.fontSize = '0.8rem';
+        
+        chartContainer.appendChild(point);
+        chartContainer.appendChild(label);
+        chartContainer.appendChild(value);
     });
-}
-
-// Format date for display
-function formatDate(date) {
-    return date.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
-
-// Show notification
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
     
-    document.body.appendChild(notification);
+    // Create SVG for line
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
     
-    // Trigger animation
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', pathD);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'var(--accent-color)');
+    path.setAttribute('stroke-width', '2');
     
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, 3000);
-} 
+    svg.appendChild(path);
+    chartContainer.appendChild(svg);
+    
+    container.appendChild(chartContainer);
+}      

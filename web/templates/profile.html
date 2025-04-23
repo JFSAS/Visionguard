@@ -25,7 +25,7 @@
                 </div>
                 <ul class="nav-links">
                     <li><a href="dashboard">城市态势感知</a></li>
-                    <li><a href="profile" class="active">目标画像展示</a></li>
+                    <li><a href="profile" class="active">目标搜索</a></li>
                     <li><a href="analysis">智能分析报告</a></li>
                 </ul>
             </div>
@@ -34,23 +34,41 @@
 
     <main>
         <div class="container">
-            <h2 class="page-title">目标画像展示</h2>
+            <div class="section-header">
+                <i class="fas fa-user-circle section-icon"></i>
+                <h2 class="page-title">目标画像展示</h2>
+            </div>
 
             <div class="grid-container">
                 <!-- Profile Upload Section -->
                 <div class="card profile-upload">
-                    <h3 class="card-title"><i class="fas fa-user-circle"></i> 头像上传</h3>
+                    <h3 class="card-title"><i class="fas fa-user-circle"></i> 目标图片上传</h3>
+                    <div class="search-options">
+                        <h4>搜索选项</h4>
+                        <div class="option-buttons">
+                            <button id="search-face-btn" class="btn option-btn active">
+                                <i class="fas fa-user"></i> 人脸搜索
+                            </button>
+                            <button id="search-pedestrian-btn" class="btn option-btn">
+                                <i class="fas fa-walking"></i> 行人搜索
+                            </button>
+                            <button id="search-nlp-btn" class="btn option-btn">
+                                <i class="fas fa-comments"></i> 自然语言搜索
+                            </button>
+                        </div>
+                    </div>
                     <div class="upload-area">
                         <div class="upload-icon">
                             <i class="fas fa-cloud-upload-alt"></i>
                         </div>
                         <div class="upload-text">
-                            点击或拖拽图片到此处上传
+                            点击或拖拽上传人脸/行人图片到此处上传
                         </div>
                         <input type="file" id="file-input" accept="image/*" style="display: none;">
                     </div>
                     <div class="upload-preview" style="display: none;">
                         <img src="#" alt="预览">
+                        <button class="reset-upload btn"><i class="fas fa-redo"></i> 重新上传</button>
                     </div>
                 </div>
 
@@ -59,10 +77,15 @@
                     <h3 class="card-title"><i class="fas fa-align-left"></i> 语言描述输入</h3>
                     <div class="input-field">
                         <label for="description-input">请输入目标特征描述：</label>
-                        <textarea id="description-input" placeholder="例如：男性，30-40岁，黑色上衣，背包，戴眼镜..."></textarea>
+                        <textarea id="description-input" placeholder="例如：男性，30-40岁，黑色上衣，戴眼镜，或其他特征描述..."></textarea>
                     </div>
-                    <div class="tags-container">
-                        <!-- Tags will be dynamically inserted here -->
+                    <div class="search-filters">
+                        <div class="tags-section">
+                            <div class="tags-container">
+                                <!-- Tags will be dynamically inserted here -->
+                            </div>
+                        </div>
+
                     </div>
                     <button id="search-btn" class="btn">
                         <i class="fas fa-search"></i> 搜索目标
@@ -78,56 +101,6 @@
                 </div>
             </div>
             
-            <!-- 目标检测结果展示区域 -->
-            <div class="detection-results-section">
-                <div class="card">
-                    <h3 class="card-title"><i class="fas fa-search"></i> 目标检测结果</h3>
-                    <div class="detection-results-grid">
-                        <div class="detection-result-item">
-                            <div class="detection-video">
-                                <video autoplay muted loop playsinline>
-                                    <source src="videos/1.mp4" type="video/mp4">
-                                </video>
-                            </div>
-                            <div class="detection-info">
-                                <div class="info-item">
-                                    <span class="info-label">位置:</span>
-                                    <span class="info-value">北区商场入口</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">时间:</span>
-                                    <span class="info-value">2023年6月15日 09:30</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">置信度:</span>
-                                    <span class="info-value">92%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="detection-result-item">
-                            <div class="detection-video">
-                                <video autoplay muted loop playsinline>
-                                    <source src="videos/1.mp4" type="video/mp4">
-                                </video>
-                            </div>
-                            <div class="detection-info">
-                                <div class="info-item">
-                                    <span class="info-label">位置:</span>
-                                    <span class="info-value">东区公园监控点3</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">时间:</span>
-                                    <span class="info-value">2023年6月15日 10:15</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">置信度:</span>
-                                    <span class="info-value">87%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </main>
 

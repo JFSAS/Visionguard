@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-from extensions import db, cors
+from extensions import db, cors, socketio
 from routes import register_blueprints
 from api import cameras_bp, auth_bp, alerts_bp, analysis_bp, user_cameras_bp
 from config import config
@@ -16,6 +16,7 @@ def create_app(config_name='default'):
     # 初始化扩展
     db.init_app(app)
     cors.init_app(app, supports_credentials=True)
+    socketio.init_app(app, cors_allowed_origins="*")
     
     # 创建所有表（仅在开发环境使用）
     with app.app_context():
@@ -36,4 +37,4 @@ def create_app(config_name='default'):
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

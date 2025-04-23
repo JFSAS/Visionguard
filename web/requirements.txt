@@ -1,0 +1,10 @@
+Flask==2.2.3
+Flask-SQLAlchemy==3.0.3
+Flask-CORS==3.0.10
+Flask-SocketIO==5.3.4
+python-socketio==5.8.0
+python-engineio==4.4.1
+eventlet==0.33.3  # 用于生产环境下的异步支持
+gunicorn==20.1.0  # 生产环境Web服务器
+mysqlclient==2.1.1  # MySQL数据库连接
+PyJWT==2.6.0  # JWT认证 
