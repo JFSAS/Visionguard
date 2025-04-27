@@ -3,7 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import jwt
 import datetime
 from functools import wraps
-from models import db, User
+from web.models import db, User
 
 auth_bp = Blueprint('auth', __name__)
 

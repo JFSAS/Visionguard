@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, g
-from models import db, UserCamera
-from api.auth import login_required
+from web.models import db, UserCamera
+from web.api.auth import login_required
 import json
 import random
 from datetime import datetime

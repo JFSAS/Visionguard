@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, session, request
-from api import login_required
+from web.api import login_required
 
 camera_management_bp = Blueprint('camera_management', __name__)
 

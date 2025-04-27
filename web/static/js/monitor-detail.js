@@ -3,6 +3,13 @@ let socket = null;
 let currentCameraId = null;
 let personRecords = []; // 存储人员记录
 let currentTrackingPerson = null; // 当前跟踪的人
+let videoRenderer = null; // 视频渲染器实例
+let latestDetectionFrameNumber = -1; // 最新收到的检测数据帧号
+let isWaitingForData = false; // 是否正在等待检测数据
+
+// 同步控制参数
+const SYNC_BUFFER_SIZE = 100; // 在恢复播放前需要积累的帧数 (修改为100)
+const MAX_FRAME_GAP = 60; // 允许的最大帧号差距，超过此值会暂停
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -19,21 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 加载摄像头数据
     loadCameraData(cameraId);
     
-    // 初始化WebSocket连接
-    initializeWebSocket(cameraId);
-    
-    // 页面卸载时清理播放器和WebSocket连接
-    window.addEventListener('beforeunload', function() {
-        const videoElement = document.querySelector('.videoElement');
-        if (videoElement) {
-            cleanupFlvPlayer(videoElement);
-        }
-        
-        // 关闭WebSocket连接
-        if (socket) {
-            socket.disconnect();
-        }
-    });
     
     // 初始化过滤器按钮事件
     initializeFilterButtons();
@@ -54,55 +46,27 @@ function initializeFilterButtons() {
     });
 }
 
-// 初始化WebSocket连接
-function initializeWebSocket(cameraId) {
-    // 创建Socket.IO连接
-    socket = io();
-    
-    // 连接成功事件
-    socket.on('connect', function() {
-        console.log('WebSocket连接成功');
-        // 加入特定摄像头的房间
-        socket.emit('join_camera', { camera_id: cameraId });
-    });
-    
-    // 加入房间成功事件
-    socket.on('joined', function(data) {
-        console.log('成功加入摄像头房间:', data);
-    });
-    
-    // 检测事件
-    socket.on('detection_event', function(data) {
-        console.log('收到检测事件:', data);
-        // 处理检测到的人物
-        if (data.detection_type === 'person') {
-            handlePersonDetection(data);
-        }
-    });
-    
-    // 错误事件
-    socket.on('error', function(error) {
-        console.error('WebSocket错误:', error);
-    });
-    
-    // 断开连接事件
-    socket.on('disconnect', function() {
-        console.log('WebSocket连接已断开');
-    });
-}
 
-// 处理人物检测事件
-function handlePersonDetection(personData) {
-    // 创建人物记录对象
-    const person = {
-        id: personData.id,
-        name: `Person_${personData.id}`,
-        time: new Date(), // 使用当前时间
-        status: personData.status
-    };
+// 处理多人检测事件
+function handlePersonsDetection(data) {
+    // 如果没有人物数据，直接返回
+    if (!Array.isArray(data.persons) || data.persons.length === 0) return;
     
-    // 添加到人物记录列表
-    personRecords.unshift(person); // 添加到列表开头
+    // 处理每个人物
+    data.persons.forEach(person => {
+        // 创建人物记录对象
+        const personRecord = {
+            id: person.person_id,
+            name: `Person_${person.person_id}`,
+            time: new Date(), // 使用当前时间
+            status: person.status,
+            frameNumber: data.frame_number, // 添加帧序号
+            bbox: person.bbox // 保存边界框坐标
+        };
+        
+        // 添加到人物记录列表
+        personRecords.unshift(personRecord); // 添加到列表开头
+    });
     
     // 只保留最近的50条记录
     if (personRecords.length > 50) {
@@ -112,7 +76,18 @@ function handlePersonDetection(personData) {
     // 更新UI
     updatePersonList(document.querySelector('.filter-btn.active').dataset.filter);
     updateDetectionStats();
-    addDetectionEvent(person);
+    
+    // 为每个人物添加事件
+    data.persons.forEach(person => {
+        const personRecord = {
+            id: person.person_id,
+            name: `Person_${person.person_id}`,
+            time: new Date(),
+            status: person.status,
+            frameNumber: data.frame_number
+        };
+        addDetectionEvent(personRecord);
+    });
     
     // 更新最后更新时间
     document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
@@ -138,6 +113,7 @@ function addDetectionEvent(person) {
         <div class="event-info">
             <span>检测到${person.status === 'normal' ? '正常' : '可疑'}人员</span>
             <span class="event-id">ID: ${person.id}</span>
+            ${person.frameNumber ? `<span class="event-frame">帧: ${person.frameNumber}</span>` : ''}
         </div>
     `;
     
@@ -166,8 +142,24 @@ function showTracking(personId) {
     // 更新UI以高亮显示选中的人
     updatePersonList(document.querySelector('.filter-btn.active').dataset.filter);
     
-    // 这里可以添加在视频上显示跟踪框的代码
+    // 用渲染器处理跟踪高亮
     console.log('跟踪人物:', person);
+    
+    // 如果有帧号和边界框，高亮显示该人物
+    if (person.frameNumber && person.bbox && videoRenderer) {
+        const highlightData = {};
+        highlightData[person.frameNumber] = [{
+            x: person.bbox.x,
+            y: person.bbox.y,
+            width: person.bbox.width,
+            height: person.bbox.height,
+            person_id: person.id,
+            label: `跟踪: ID:${person.id}`,
+            color: 'yellow',
+            lineWidth: 4
+        }];
+        videoRenderer.updateDetectionData(highlightData);
+    }
 }
 
 // 更新人员列表
@@ -212,16 +204,79 @@ function loadCameraData(cameraId) {
             // 更新摄像头信息
             updateCameraInfo(camera);
             
-            // 播放视频流
-            const vidoeElement = document.querySelector('.videoElement');
-            playFlvVideo(camera.stream_url,vidoeElement);
-            
-            
+            // 创建视频渲染器
+            createVideoRenderer(camera.stream_url);
         })
         .catch(error => {
             console.error('获取摄像头数据失败:', error);
         });
 }
+
+// 创建视频渲染器
+function createVideoRenderer(streamUrl) {
+    // 获取视频容器
+    const videoContainer = document.querySelector('.video-player');
+    
+    // 清空容器内容
+    videoContainer.innerHTML = '';
+    
+    // 创建渲染器实例
+    videoRenderer = new FlvVideoRenderer({
+        showFrameNumber: true,
+        decodingInterval: 1, // 每一帧都解码
+        debugMode: false,
+    });
+    
+    // 创建渲染视频
+    const renderedVideo = videoRenderer.createRenderedVideo(
+        streamUrl, 
+        videoContainer, 
+        {
+            isLive: true,
+            hasAudio: false
+        }
+    );
+    videoRenderer.setCameraId(currentCameraId);
+    // 添加控制按钮
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'video-controls';
+    controlsDiv.innerHTML = `
+        <button class="control-btn" id="fullscreen-btn" title="全屏">
+            <i class="fas fa-expand"></i>
+        </button>
+        <button class="control-btn" id="render-toggle-btn" title="切换渲染">
+            <i class="fas fa-eye"></i>
+        </button>
+        <button class="control-btn" id="sync-status-btn" title="同步状态">
+            <i class="fas fa-sync-alt"></i>
+            <span class="sync-status">同步中</span>
+        </button>
+    `;
+    videoContainer.appendChild(controlsDiv);
+    
+    
+    // 全屏按钮事件
+    document.getElementById('fullscreen-btn').addEventListener('click', () => {
+        if (videoRenderer.displayCanvas.requestFullscreen) {
+            videoRenderer.displayCanvas.requestFullscreen();
+        } else if (videoRenderer.displayCanvas.webkitRequestFullscreen) {
+            videoRenderer.displayCanvas.webkitRequestFullscreen();
+        }
+    });
+    
+    // 渲染切换按钮事件
+    document.getElementById('render-toggle-btn').addEventListener('click', function() {
+        const isRendering = videoRenderer.isRendering;
+        videoRenderer.toggleRendering(!isRendering);
+        this.innerHTML = !isRendering 
+            ? '<i class="fas fa-eye"></i>' 
+            : '<i class="fas fa-eye-slash"></i>';
+    });
+    
+    console.log('视频渲染器创建成功');
+}
+
+
 
 // 更新摄像头信息
 function updateCameraInfo(camera) {
@@ -236,8 +291,6 @@ function updateCameraInfo(camera) {
     if (cameraStatusText) {
         cameraStatusText.textContent = camera.status || '未知状态';
     }
-    
-
 }
 
 

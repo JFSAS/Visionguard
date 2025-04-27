@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, g
-from api import login_required
-from models import UserCamera
+from web.api import login_required
+from web.models import UserCamera
 
 dashboard_bp = Blueprint('dashboard', __name__)
 

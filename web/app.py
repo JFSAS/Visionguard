@@ -1,9 +1,10 @@
 import os
 from flask import Flask
-from extensions import db, cors, socketio
-from routes import register_blueprints
-from api import cameras_bp, auth_bp, alerts_bp, analysis_bp, user_cameras_bp
-from config import config
+from web.extensions import db, cors, socketio
+from web.routes import register_blueprints
+from web.api import cameras_bp, auth_bp, alerts_bp, analysis_bp, user_cameras_bp, detection_bp
+from web.config import config
+from web.api.ai_connector import init_ai_connector
 
 def create_app(config_name='default'):
     app = Flask(__name__, 
@@ -17,7 +18,6 @@ def create_app(config_name='default'):
     db.init_app(app)
     cors.init_app(app, supports_credentials=True)
     socketio.init_app(app, cors_allowed_origins="*")
-    
     # 创建所有表（仅在开发环境使用）
     with app.app_context():
         db.create_all()
@@ -31,7 +31,11 @@ def create_app(config_name='default'):
     app.register_blueprint(alerts_bp, url_prefix='/api/alerts')
     app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
     app.register_blueprint(user_cameras_bp, url_prefix='/api/user-cameras')
+    app.register_blueprint(detection_bp, url_prefix='/api/detection')
     # app.register_blueprint(streams_bp, url_prefix='/api/streams')
+    
+    # 初始化AI连接器
+    init_ai_connector(app)
     
     return app
 

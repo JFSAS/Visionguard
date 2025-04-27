@@ -9,6 +9,10 @@ class Config:
     SESSION_PERMANENT = False
     PERMANENT_SESSION_LIFETIME = 3600  # 会话有效期1小时
     
+    # AI服务器配置
+    AI_SERVICE_API_KEY = os.environ.get('AI_SERVICE_API_KEY', 'dev_api_key')
+    DETECTION_EVENT_RETENTION_DAYS = 7  # 检测事件保留天数
+
 class DevelopmentConfig(Config):
     DEBUG = True
 
