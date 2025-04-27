@@ -1,0 +1,63 @@
+"filename", "language", "Python", "Markdown", "NGINX Conf", "HTML", "pip requirements", "Shell Script", "JavaScript", "CSS", "comment", "blank", "total"
+"d:\ProjectA\ffmpeg-service\README.md", "Markdown", 0, 14, 0, 0, 0, 0, 0, 0, 0, 5, 19
+"d:\ProjectA\ffmpeg-service\VideoFrameEncoder.py", "Python", 199, 0, 0, 0, 0, 0, 0, 0, 40, 57, 296
+"d:\ProjectA\ffmpeg-service\ffmpeg-stream.conf", "NGINX Conf", 0, 0, 8, 0, 0, 0, 0, 0, 7, 3, 18
+"d:\ProjectA\ffmpeg-service\ffmpeg-stream.sh", "Shell Script", 0, 0, 0, 0, 0, 16, 0, 0, 8, 6, 30
+"d:\ProjectA\nginx\nginx.conf", "NGINX Conf", 0, 0, 77, 0, 0, 0, 0, 0, 18, 27, 122
+"d:\ProjectA\scripts\import_sqlite.py", "Python", 48, 0, 0, 0, 0, 0, 0, 0, 19, 15, 82
+"d:\ProjectA\web\README.md", "Markdown", 0, 161, 0, 0, 0, 0, 0, 0, 0, 91, 252
+"d:\ProjectA\web\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"d:\ProjectA\web\api\__init__.py", "Python", 6, 0, 0, 0, 0, 0, 0, 0, 1, 1, 8
+"d:\ProjectA\web\api\ai_connector.py", "Python", 79, 0, 0, 0, 0, 0, 0, 0, 30, 26, 135
+"d:\ProjectA\web\api\alerts.py", "Python", 85, 0, 0, 0, 0, 0, 0, 0, 3, 9, 97
+"d:\ProjectA\web\api\analysis.py", "Python", 168, 0, 0, 0, 0, 0, 0, 0, 25, 38, 231
+"d:\ProjectA\web\api\auth.py", "Python", 100, 0, 0, 0, 0, 0, 0, 0, 11, 26, 137
+"d:\ProjectA\web\api\cameras.py", "Python", 100, 0, 0, 0, 0, 0, 0, 0, 16, 28, 144
+"d:\ProjectA\web\api\detection_api.py", "Python", 122, 0, 0, 0, 0, 0, 0, 0, 13, 28, 163
+"d:\ProjectA\web\api\user_cameras.py", "Python", 148, 0, 0, 0, 0, 0, 0, 0, 11, 25, 184
+"d:\ProjectA\web\app.py", "Python", 29, 0, 0, 0, 0, 0, 0, 0, 7, 8, 44
+"d:\ProjectA\web\config.py", "Python", 20, 0, 0, 0, 0, 0, 0, 0, 2, 5, 27
+"d:\ProjectA\web\extensions.py", "Python", 6, 0, 0, 0, 0, 0, 0, 0, 1, 1, 8
+"d:\ProjectA\web\models\DetectionFrames.py", "Python", 38, 0, 0, 0, 0, 0, 0, 0, 2, 8, 48
+"d:\ProjectA\web\models\DetectionService.py", "Python", 118, 0, 0, 0, 0, 0, 0, 0, 5, 21, 144
+"d:\ProjectA\web\models\FaceAppearances.py", "Python", 51, 0, 0, 0, 0, 0, 0, 0, 2, 9, 62
+"d:\ProjectA\web\models\PersonAppearances.py", "Python", 51, 0, 0, 0, 0, 0, 0, 0, 2, 9, 62
+"d:\ProjectA\web\models\UserCameras.py", "Python", 43, 0, 0, 0, 0, 0, 0, 0, 1, 8, 52
+"d:\ProjectA\web\models\Users.py", "Python", 24, 0, 0, 0, 0, 0, 0, 0, 0, 6, 30
+"d:\ProjectA\web\models\__init__.py", "Python", 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+"d:\ProjectA\web\requirements.txt", "pip requirements", 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 10
+"d:\ProjectA\web\routes\__init__.py", "Python", 7, 0, 0, 0, 0, 0, 0, 0, 0, 1, 8
+"d:\ProjectA\web\routes\auth.py", "Python", 20, 0, 0, 0, 0, 0, 0, 0, 0, 4, 24
+"d:\ProjectA\web\routes\camera_management.py", "Python", 32, 0, 0, 0, 0, 0, 0, 0, 0, 5, 37
+"d:\ProjectA\web\routes\dashboard.py", "Python", 29, 0, 0, 0, 0, 0, 0, 0, 2, 9, 40
+"d:\ProjectA\web\static\css\analysis.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 178, 4, 37, 219
+"d:\ProjectA\web\static\css\common.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 306, 8, 56, 370
+"d:\ProjectA\web\static\css\login.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 134, 3, 21, 158
+"d:\ProjectA\web\static\css\monitor-detail.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 364, 12, 64, 440
+"d:\ProjectA\web\static\css\profile.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 494, 10, 69, 573
+"d:\ProjectA\web\static\css\situation.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 1348, 32, 211, 1591
+"d:\ProjectA\web\static\css\style.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 250, 11, 47, 308
+"d:\ProjectA\web\static\js\add-camera.js", "JavaScript", 0, 0, 0, 0, 0, 0, 316, 0, 54, 71, 441
+"d:\ProjectA\web\static\js\analysis.js", "JavaScript", 0, 0, 0, 0, 0, 0, 295, 0, 30, 56, 381
+"d:\ProjectA\web\static\js\camera-management.js", "JavaScript", 0, 0, 0, 0, 0, 0, 321, 0, 43, 49, 413
+"d:\ProjectA\web\static\js\common.js", "JavaScript", 0, 0, 0, 0, 0, 0, 285, 0, 63, 48, 396
+"d:\ProjectA\web\static\js\flv.min.js", "JavaScript", 0, 0, 0, 0, 0, 0, 2, 0, 8, 0, 10
+"d:\ProjectA\web\static\js\login.js", "JavaScript", 0, 0, 0, 0, 0, 0, 42, 0, 7, 9, 58
+"d:\ProjectA\web\static\js\monitor-detail.js", "JavaScript", 0, 0, 0, 0, 0, 0, 236, 0, 57, 69, 362
+"d:\ProjectA\web\static\js\profile.js", "JavaScript", 0, 0, 0, 0, 0, 0, 338, 0, 35, 56, 429
+"d:\ProjectA\web\static\js\register.js", "JavaScript", 0, 0, 0, 0, 0, 0, 53, 0, 7, 11, 71
+"d:\ProjectA\web\static\js\situation.js", "JavaScript", 0, 0, 0, 0, 0, 0, 555, 0, 84, 109, 748
+"d:\ProjectA\web\static\js\video-flv.js", "JavaScript", 0, 0, 0, 0, 0, 0, 462, 0, 194, 118, 774
+"d:\ProjectA\web\templates\README.md", "Markdown", 0, 149, 0, 0, 0, 0, 0, 0, 0, 63, 212
+"d:\ProjectA\web\templates\add-camera.html", "HTML", 0, 0, 0, 549, 0, 0, 0, 0, 5, 82, 636
+"d:\ProjectA\web\templates\analysis.html", "HTML", 0, 0, 0, 116, 0, 0, 0, 0, 5, 10, 131
+"d:\ProjectA\web\templates\camera-management.html", "HTML", 0, 0, 0, 563, 0, 0, 0, 0, 8, 82, 653
+"d:\ProjectA\web\templates\edit-camera.html", "HTML", 0, 0, 0, 550, 0, 0, 0, 0, 4, 80, 634
+"d:\ProjectA\web\templates\index.html", "HTML", 0, 0, 0, 254, 0, 0, 0, 0, 13, 9, 276
+"d:\ProjectA\web\templates\login.html", "HTML", 0, 0, 0, 44, 0, 0, 0, 0, 0, 0, 44
+"d:\ProjectA\web\templates\monitor-detail.html", "HTML", 0, 0, 0, 110, 0, 0, 0, 0, 10, 6, 126
+"d:\ProjectA\web\templates\profile.html", "HTML", 0, 0, 0, 102, 0, 0, 0, 0, 5, 10, 117
+"d:\ProjectA\web\templates\register.html", "HTML", 0, 0, 0, 52, 0, 0, 0, 0, 0, 3, 55
+"d:\ProjectA\文档\时间同步.md", "Markdown", 0, 177, 0, 0, 0, 0, 0, 0, 0, 51, 228
+"d:\ProjectA\文档\调研物理世界计算机视觉攻击.md", "Markdown", 0, 60, 0, 0, 0, 0, 0, 0, 0, 66, 126
+"Total", "-", 1526, 561, 85, 2340, 10, 16, 2905, 3074, 938, 2043, 13498

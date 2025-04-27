@@ -133,7 +133,7 @@ function reloadFlvVideo(videoElement, videoUrl, options = {}) {
  * FlvVideoRenderer类
  * 用于播放原始FLV视频或使用Canvas渲染带有目标检测框的视频
  */
-class FlvVideoRenderer {
+class FlvVideoRender {
   /**
    * 构造函数
    * @param {Object} options - 配置选项
@@ -158,6 +158,15 @@ class FlvVideoRenderer {
         font: "24px Arial",
         color: "red",
       },
+
+      onNewPersonDetected: null, // 新人物检测回调
+      onPersonReappear: null, // 人物重新出现回调
+      
+      personTrackingOptions: {
+        reapperThreshold: 30,  // 人物消失30秒后才算重新出现
+        trackingEnable: true,  // 是否开启人物追踪
+
+      },
       ...options,
     };
 
@@ -178,6 +187,9 @@ class FlvVideoRenderer {
     this.batchSize = 30; // 每次请求的帧数量
     this.cameraId = null; // 摄像头ID
     this.preloadThreshold = 15; // 当剩余未渲染的缓存帧少于此值时预加载
+    this.knownPersonIds = new Set(); // 存储已知的人员ID
+    this.futureFrames = {}; // 存储未来帧数据的缓存
+    this.personTracker = {};  
 
   }
 
@@ -255,36 +267,6 @@ class FlvVideoRenderer {
   }
 
   /**
-   * 暂停视频播放
-   */
-  pausePlayback() {
-    if (this.sourceVideo && !this.isPaused) {
-      this.sourceVideo.pause();
-      this.isPaused = true;
-
-      if (this.options.debugMode) {
-        console.log("视频播放已暂停");
-      }
-    }
-  }
-
-  /**
-   * 恢复视频播放
-   */
-  resumePlayback() {
-    if (this.sourceVideo && this.isPaused) {
-      this.sourceVideo.play().catch((err) => {
-        console.error("恢复播放失败:", err);
-      });
-      this.isPaused = false;
-
-      if (this.options.debugMode) {
-        console.log("视频播放已恢复");
-      }
-    }
-  }
-
-  /**
    * 当视频开始播放时的处理
    * @private
    */
@@ -330,6 +312,8 @@ class FlvVideoRenderer {
     if (this.frameCount % this.options.decodingInterval === 0) {
       this._decodeCurrentFrame();
     }
+
+
     if (this.currentFrameNumber < this.lastRequestedFrame) {
       this.lastRequestedFrame = this.currentFrameNumber;
     }
@@ -361,11 +345,149 @@ class FlvVideoRenderer {
       this._renderDetectionBoxes();
     }
 
+    // 分析检测数据
+    this._analyzePersonsInFrame(this.currentFrameNumber);
+
     // 继续处理下一帧
     this.animationFrameId = requestAnimationFrame(
       this._processFrame.bind(this)
     );
   }
+
+
+  /**
+   * 分析当前帧中的人物
+   * @param {number} frameNumber - 帧号
+   * @private
+   */
+  _analyzePersonsInFrame(frameNumber) {
+    // 获取当前帧的检测数据
+    const frameData = this.frameDataCache[frameNumber];
+    if (!frameData || !frameData.persons || !Array.isArray(frameData.persons)) {
+      return;
+    }
+    
+    const persons = frameData.persons;
+    const newlyDetectedPersons = [];
+    const reappearedPersons = [];
+    
+    // 分析每个人物
+    persons.forEach(person => {
+      const personId = person.id || person.person_id;
+      if (!personId) return;
+      
+      // 检查是否是新人物
+      if (this._isNewPerson(personId)) {
+        // 新人物
+        this._trackPerson(personId, frameNumber, person);
+        
+        // 如果配置了回调函数，添加到新检测队列
+        if (this.options.onNewPersonDetected) {
+          newlyDetectedPersons.push({
+            personId,
+            frameNumber,
+            timestamp: new Date(),
+            status: person.status || 'normal',
+            bbox: person.bbox,
+            confidence: person.confidence
+          });
+        }
+      } else {
+        // 已知人物，检查是否是重新出现
+        const hasReappeared = this._hasPersonReappeared(personId, frameNumber);
+        this._trackPerson(personId, frameNumber, person);
+        
+        // 如果是重新出现，且配置了回调函数
+        if (hasReappeared && this.options.onPersonReappear) {
+          const tracker = this.personTracker[personId];
+          reappearedPersons.push({
+            personId,
+            frameNumber,
+            timestamp: new Date(),
+            status: person.status || 'normal',
+            bbox: person.bbox,
+            confidence: person.confidence,
+            disappeared: frameNumber - tracker.lastSeenFrame
+          });
+        }
+      }
+    });
+    
+    // 批量调用回调函数，避免频繁调用
+    if (newlyDetectedPersons.length > 0 && this.options.onNewPersonDetected) {
+      this.options.onNewPersonDetected(newlyDetectedPersons);
+    }
+    
+    if (reappearedPersons.length > 0 && this.options.onPersonReappear) {
+      this.options.onPersonReappear(reappearedPersons);
+    }
+    
+    // 清理过期的人物追踪数据
+    this._cleanupPersonTracker(frameNumber);
+  }
+
+/**
+   * 更新人物追踪状态
+   * @param {string|number} personId - 人物ID
+   * @param {number} frameNumber - 当前帧号
+   * @param {Object} personData - 人物数据
+   * @private
+   */
+_trackPerson(personId, frameNumber, personData) {
+  // 添加到已知ID集合
+  this.knownPersonIds.add(personId);
+  
+  if (!this.personTracker[personId]) {
+    // 首次出现，创建追踪记录
+    this.personTracker[personId] = {
+      firstSeenFrame: frameNumber,
+      lastSeenFrame: frameNumber,
+      appearances: [{ startFrame: frameNumber, endFrame: frameNumber }],
+      status: personData.status || 'normal',
+      isActive: true,
+      totalFrames: 1,
+      bbox: personData.bbox
+    };
+  } else {
+    // 已有记录，更新追踪状态
+    const tracker = this.personTracker[personId];
+    
+    // 检查是否是连续出现
+    const lastAppearance = tracker.appearances[tracker.appearances.length - 1];
+    
+    if (frameNumber - tracker.lastSeenFrame <= 1) {
+      // 连续帧或仅相差1帧，更新最后一次出现记录
+      lastAppearance.endFrame = frameNumber;
+    } else {
+      // 不连续，创建新的出现记录
+      tracker.appearances.push({ startFrame: frameNumber, endFrame: frameNumber });
+    }
+    
+    // 更新最后出现帧号和状态
+    tracker.lastSeenFrame = frameNumber;
+    tracker.status = personData.status || tracker.status;
+    tracker.totalFrames++;
+    tracker.isActive = true;
+    tracker.bbox = personData.bbox;
+  }
+}
+
+_cleanupPersonTracker(currentFrame) {
+  // 限制跟踪的人物数量
+  const maxTracked = this.options.personTrackingOptions.maxTrackedPersons;
+  
+  if (Object.keys(this.personTracker).length > maxTracked) {
+    // 根据最后出现时间排序，保留最近出现的人物
+    const sortedTrackers = Object.entries(this.personTracker)
+      .sort((a, b) => b[1].lastSeenFrame - a[1].lastSeenFrame);
+    
+    // 移除过多的人物记录
+    for (let i = maxTracked; i < sortedTrackers.length; i++) {
+      const personId = sortedTrackers[i][0];
+      delete this.personTracker[personId];
+    }
+  }
+}
 
 
   /**
@@ -620,4 +742,32 @@ class FlvVideoRenderer {
     this.futureFrames = {};
     this.currentFrameNumber = -1;
   }
+
+    /**
+   * 判断是否是新人物
+   * @param {string|number} personId - 人物ID
+   * @returns {boolean} - 是否是新人物
+   * @private
+   */
+    _isNewPerson(personId) {
+      return !this.knownPersonIds.has(personId) && !this.personTracker[personId];
+    }
+
+  /**
+   * 判断人物是否重新出现
+   * @param {string|number} personId - 人物ID
+   * @param {number} currentFrame - 当前帧号
+   * @returns {boolean} - 是否重新出现
+   * @private
+   */
+  _hasPersonReappeared(personId, currentFrame) {
+    const tracker = this.personTracker[personId];
+    if (!tracker) return false;
+    
+    // 如果超过设定的帧数阈值未出现，则算作重新出现
+    const threshold = this.options.personTrackingOptions.reappearThreshold;
+    return (currentFrame - tracker.lastSeenFrame) > threshold;
+  }
+
 }
+
