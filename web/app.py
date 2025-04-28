@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from web.extensions import db, cors, socketio
 from web.routes import register_blueprints
-from web.api import cameras_bp, auth_bp, alerts_bp, analysis_bp, user_cameras_bp, detection_bp
+from web.api import cameras_bp, auth_bp, alerts_bp, analysis_bp, user_cameras_bp, detection_bp, person_trajectory_bp
 from web.config import config
 from web.api.ai_connector import init_ai_connector
 
@@ -32,6 +32,7 @@ def create_app(config_name='default'):
     app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
     app.register_blueprint(user_cameras_bp, url_prefix='/api/user-cameras')
     app.register_blueprint(detection_bp, url_prefix='/api/detection')
+    app.register_blueprint(person_trajectory_bp, url_prefix='/api/person_trajectory')
     # app.register_blueprint(streams_bp, url_prefix='/api/streams')
     
     # 初始化AI连接器

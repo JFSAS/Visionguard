@@ -62,9 +62,9 @@ function playFlvVideo(videoUrl, vElement, options = {}) {
       const end = vElement.buffered.end(0);
       const diff = end - vElement.currentTime;
 
-      if (5 <= diff && diff <= 60) {
+      if (5 <= diff && diff <= 10) {
         vElement.playbackRate = 2;
-      } else if (diff > 60) {
+      } else if (diff > 15) {
         vElement.currentTime = end;
       } else {
         vElement.playbackRate = 1;
@@ -652,10 +652,10 @@ _cleanupPersonTracker(currentFrame) {
       if (person.id !== undefined ) {
         // 设置文本背景
         const label = `ID:${person.id}`;
-        const textWidth = this.ctx.measureText(label).width;
+        const textWidth = 120;
 
         this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-        this.ctx.fillRect(box.x, box.y - 25, textWidth + 10, 20);
+        this.ctx.fillRect(box.x, box.y - 25, textWidth + 30, 20);
 
         // 绘制文本
         this.ctx.fillStyle = box.color || "green";
@@ -667,7 +667,7 @@ _cleanupPersonTracker(currentFrame) {
           const confText = `${Math.round(person.confidence * 100)}%`;
           this.ctx.fillText(
             confText,
-            box.x + box.width - this.ctx.measureText(confText).width - 5,
+            box.x + 120,
             box.y - 10
           );
         }

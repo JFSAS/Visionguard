@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人物轨迹数据库 - 城市态势感知系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/person_trajectory.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="navbar">
+                <div style="display: flex; align-items: center;">
+                    <div class="logo">
+                        <a href="dashboard">
+                            <img src="static/images/logo.png" alt="Logo">
+                        </a>
+                    </div>
+                    <h1 style="writing-mode: horizontal-tb !important; margin-left: 5px; font-size: 1.2rem;">城市态势感知系统</h1>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="dashboard">城市态势感知</a></li>
+                    <li><a href="profile">目标搜索</a></li>
+                    <li><a href="analysis">智能分析报告</a></li>
+                    <li><a href="person_trajectory" class="active">人物轨迹数据库</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h2 class="page-title">人物轨迹数据库</h2>
+
+            <div class="trajectory-container">
+                <!-- 左侧人物列表 -->
+                <div class="persons-list-panel">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-users"></i> 人物列表</h3>
+                        <div class="filter-controls">
+                            <div class="search-box">
+                                <input type="text" id="person-search" placeholder="搜索人物ID...">
+                                <button id="search-btn" title="搜索"><i class="fas fa-search"></i></button>
+                            </div>
+                            <div class="dropdown">
+                                <button class="dropdown-toggle">
+                                    <i class="fas fa-sort"></i> 排序
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="#" data-sort="last_seen" data-order="desc" class="active">最近出现</a>
+                                    <a href="#" data-sort="first_seen" data-order="desc">首次出现</a>
+                                    <a href="#" data-sort="appearance_count" data-order="desc">出现次数</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="persons-grid" id="persons-grid">
+                            <!-- 动态加载人物列表 -->
+                        </div>
+                        <div class="pagination">
+                            <button id="prev-page" title="上一页" disabled><i class="fas fa-angle-left"></i></button>
+                            <span id="page-info">第 <span id="current-page">1</span> / <span id="total-pages">1</span> 页</span>
+                            <button id="next-page" title="下一页"><i class="fas fa-angle-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧详情面板 -->
+                <div class="details-panel">
+                    <!-- 当未选择人物时显示的提示 -->
+                    <div id="no-selection-message">
+                        <div class="message-content">
+                            <i class="fas fa-info-circle"></i>
+                            <p>请从左侧列表选择一个人物查看详细信息</p>
+                        </div>
+                    </div>
+
+                    <!-- 人物详情内容，默认隐藏 -->
+                    <div id="person-details" class="hidden">
+                        <!-- 上半部分：人物信息 -->
+                        <div class="person-info">
+                            <div class="person-image">
+                                <img id="person-main-image" src="" alt="人物图像">
+                            </div>
+                            <div class="person-data">
+                                <h3 id="person-id">人物 ID: <span></span></h3>
+                                <div class="data-row">
+                                    <div class="data-item">
+                                        <span class="label">首次出现:</span>
+                                        <span id="first-seen" class="value"></span>
+                                    </div>
+                                    <div class="data-item">
+                                        <span class="label">最后出现:</span>
+                                        <span id="last-seen" class="value"></span>
+                                    </div>
+                                </div>
+                                <div class="data-row">
+                                    <div class="data-item">
+                                        <span class="label">出现次数:</span>
+                                        <span id="appearance-count" class="value"></span>
+                                    </div>
+                                    <div class="data-item">
+                                        <span class="label">常见位置:</span>
+                                        <span id="common-location" class="value"></span>
+                                    </div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button id="generate-video-btn" class="btn btn-primary">
+                                        <i class="fas fa-video"></i> 生成视频片段
+                                    </button>
+                                    <button id="view-statistics-btn" class="btn btn-outline">
+                                        <i class="fas fa-chart-bar"></i> 查看统计数据
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 中间部分：出现位置分布图 -->
+                        <div class="appearance-map">
+                            <h4><i class="fas fa-map-marker-alt"></i> 出现位置分布</h4>
+                            <div id="location-map"></div>
+                        </div>
+
+                        <!-- 下半部分：时间轴 -->
+                        <div class="timeline-section">
+                            <h4><i class="fas fa-history"></i> 时间轴</h4>
+                            <div class="timeline-filter">
+                                <div class="time-range">
+                                    <label for="time-start">开始时间:</label>
+                                    <input type="datetime-local" id="time-start">
+                                    <label for="time-end">结束时间:</label>
+                                    <input type="datetime-local" id="time-end">
+                                    <button id="apply-filter" class="btn btn-small">应用</button>
+                                </div>
+                                <div class="camera-filter">
+                                    <label for="camera-select">摄像头:</label>
+                                    <select id="camera-select">
+                                        <option value="">所有摄像头</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="timeline" id="appearance-timeline">
+                                <!-- 动态加载时间轴内容 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 视频播放弹窗 -->
+            <div id="video-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>人物视频片段</h3>
+                        <button class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="video-loading" class="loading-indicator">
+                            <div class="spinner"></div>
+                            <p>正在生成视频...</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <p class="progress-text">0%</p>
+                        </div>
+                        <div id="video-player" class="hidden">
+                            <video controls id="video-element">
+                                <source src="" type="video/mp4">
+                                您的浏览器不支持HTML5视频播放
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计数据弹窗 -->
+            <div id="statistics-modal" class="modal">
+                <div class="modal-content wide-modal">
+                    <div class="modal-header">
+                        <h3>人物统计数据</h3>
+                        <button class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="stats-grid">
+                            <div class="stats-card">
+                                <h4>时间分布</h4>
+                                <div id="time-distribution-chart" class="chart-container"></div>
+                            </div>
+                            <div class="stats-card">
+                                <h4>摄像头分布</h4>
+                                <div id="camera-distribution-chart" class="chart-container"></div>
+                            </div>
+                            <div class="stats-card">
+                                <h4>行为分析</h4>
+                                <div id="behavior-analysis" class="stats-content">
+                                    <p>暂无行为分析数据</p>
+                                </div>
+                            </div>
+                            <div class="stats-card">
+                                <h4>关联人物</h4>
+                                <div id="related-persons" class="stats-content">
+                                    <p>暂无关联人物数据</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 城市态势感知系统 - 技术支持: 安全监控部门</p>
+        </div>
+    </footer>
+
+    <script src="static/js/common.js"></script>
+    <script src="static/js/person_trajectory.js"></script>
+</body>
+</html> 

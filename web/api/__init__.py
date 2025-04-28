@@ -4,5 +4,5 @@ from .alerts import alerts_bp
 from .analysis import analysis_bp
 from .user_cameras import user_cameras_bp
 from .detection_api import detection_bp
-
+from .person_trajectory_api import person_trajectory_bp
 # 可以在这里添加其他初始化内容

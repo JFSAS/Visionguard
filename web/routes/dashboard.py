@@ -37,3 +37,8 @@ def profile():
     """用户个人资料页面（受保护的页面）"""
     return render_template('profile.html')
 
+    # 人物轨迹数据库页面
+@dashboard_bp.route('/person_trajectory')
+@login_required
+def person_trajectory():
+    return render_template('person_trajectory.html')
