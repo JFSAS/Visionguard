@@ -57,8 +57,6 @@ class VideoService:
     
     # 存储所有任务
     _tasks = {}
-    # 视频文件存储目录
-    VIDEO_OUTPUT_DIR = 'static/videos/generated'
     # 视频文件过期时间（秒），默认1天
     VIDEO_EXPIRY_TIME = 86400
     
@@ -77,57 +75,23 @@ class VideoService:
         cleanup_thread = threading.Thread(target=cls._cleanup_old_videos, daemon=True)
         cleanup_thread.start()
     
-    @classmethod
-    def _cleanup_old_videos(cls):
-        """定期清理过期视频文件"""
-        while True:
-            try:
-                current_time = time.time()
-                expired_tasks = []
-                
-                # 查找过期任务
-                for task_id, task in cls._tasks.items():
-                    if task.status == VideoTask.STATUS_COMPLETED and task.completed_at:
-                        task_age = current_time - task.completed_at.timestamp()
-                        if task_age > cls.VIDEO_EXPIRY_TIME:
-                            expired_tasks.append(task_id)
-                
-                # 删除过期任务和文件
-                for task_id in expired_tasks:
-                    task = cls._tasks.pop(task_id, None)
-                    if task and task.video_path and os.path.exists(task.video_path):
-                        try:
-                            os.remove(task.video_path)
-                            logger.info(f"已删除过期视频: {task.video_path}")
-                        except Exception as e:
-                            logger.error(f"删除过期视频失败: {e}")
-                
-                # 休眠一段时间
-                time.sleep(3600)  # 每小时检查一次
-            except Exception as e:
-                logger.error(f"清理过期视频时出错: {e}")
-                time.sleep(3600)  # 错误恢复
+
     
     @classmethod
-    def create_person_video_task(cls, person_id, appearances=None, time_window=5, metadata=None):
+    def create_person_segment_task(cls, person_id, camera_id, start_time, end_time, metadata=None):
         """
-        创建人物视频生成任务
+        创建人物视频片段生成任务
         
         参数:
             person_id: 人物ID
-            appearances: 要包含的出现记录ID列表，如果为None则包含所有记录
-            time_window: 每段记录前后扩展的时间窗口（秒）
+            camera_id: 摄像头ID
+            start_time: 起始时间戳
+            end_time: 结束时间戳
             metadata: 额外元数据
             
         返回:
             任务ID
         """
-        # 如果未指定出现记录，则获取所有记录
-        if appearances is None:
-            person_appearances = PersonAppearance.query.filter_by(person_id=person_id) \
-                                                .order_by(PersonAppearance.timestamp).all()
-            appearances = [app.id for app in person_appearances]
-        
         # 创建唯一任务ID
         task_id = str(uuid.uuid4())
         
@@ -135,82 +99,291 @@ class VideoService:
         task = VideoTask(
             task_id=task_id,
             person_id=person_id,
-            appearances=appearances,
-            time_window=time_window,
-            metadata=metadata
+            appearances=[],  # 这里不用appearances列表，而是使用时间范围
+            time_window=0,  # 不需要时间窗口扩展
+            metadata={
+                'camera_id': camera_id,
+                'start_time': start_time,
+                'end_time': end_time,
+                **(metadata or {})
+            }
         )
-        
+        logger.info(f"person_id:{person_id}创建视频分割任务: {task.task_id}")
         # 存储任务
         cls._tasks[task_id] = task
-        
+
+        from flask import current_app
+        app = current_app._get_current_object()
         # 启动异步处理线程
         processing_thread = threading.Thread(
-            target=cls._process_video_task,
-            args=(task_id,),
+            target=cls._process_segment_task,
+            args=(task_id, app),
             daemon=True
         )
         processing_thread.start()
         
         return task_id
-    
+
     @classmethod
-    def _process_video_task(cls, task_id):
+    def _process_segment_task(cls, task_id, app):
         """
-        处理视频生成任务（异步）
+        处理视频片段生成任务（异步）
         
         参数:
             task_id: 任务ID
         """
-        task = cls._tasks.get(task_id)
+        
+        task : VideoTask = cls._tasks.get(task_id)
         if not task:
             logger.error(f"任务不存在: {task_id}")
             return
+
+        # 创建应用上下文
+        with app.app_context():
+            try:
+                # 更新任务状态
+                task.status = VideoTask.STATUS_PROCESSING
+                task.progress = 0
+                
+                # 从元数据中获取参数
+                camera_id = task.metadata.get('camera_id')
+                start_time = task.metadata.get('start_time')
+                end_time = task.metadata.get('end_time')
+                person_id = task.person_id
+                
+                if not camera_id or start_time is None or end_time is None:
+                    raise ValueError("缺少必要参数")
+                
+                
+
+
+                # 检查原始视频视频文件路径
+                camera = UserCamera.query.get(camera_id)
+                camera_name = camera.camera_id
+                video_path = os.path.join("static", "videos", f"{camera_name}.mp4")
+                if not os.path.exists(video_path):
+                    logger.error(f"原始视频文件不存在，{video_path}")
+                    return 
+
+
+                # 检查输出文件
+                output_dir = os.path.join("static", "videos", f"{task.person_id}_segment")
+                if not os.path.exists(output_dir):
+                    os.mkdir(output_dir)
+
+                output_path = os.path.join(output_dir, f"{camera_id}_{start_time}_{end_time}.mp4")
+
+                if os.path.exists(output_path):
+                    # 更新任务状态为完成
+                    task.video_path = output_path
+                    task.status = VideoTask.STATUS_COMPLETED
+                    task.progress = 100
+                    task.completed_at = datetime.now()
+                    return
+
+
+                # 通过时间戳查询对应的帧号
+                start_frame_record = PersonAppearance.query.filter(
+                    PersonAppearance.camera_id == camera_id,
+                    PersonAppearance.timestamp >= start_time
+                ).order_by(PersonAppearance.timestamp.asc()).first()
+                
+                end_frame_record = PersonAppearance.query.filter(
+                    PersonAppearance.camera_id == camera_id,
+                    PersonAppearance.timestamp <= end_time
+                ).order_by(PersonAppearance.timestamp.desc()).first()
+                
+                if not start_frame_record or not end_frame_record:
+                    raise ValueError("未找到指定时间范围内的帧记录")
+                
+                start_frame = start_frame_record.frame_number
+                end_frame = end_frame_record.frame_number
+                
+                logger.info(f"开始处理视频片段，帧范围: {start_frame} - {end_frame}")
+                
+                # 查询该人物在时间范围内的所有出现记录
+                person_records = PersonAppearance.query.filter(
+                    PersonAppearance.person_id == person_id,
+                    PersonAppearance.camera_id == camera_id,
+                    PersonAppearance.timestamp >= start_time,
+                    PersonAppearance.timestamp <= end_time
+                ).order_by(PersonAppearance.timestamp.asc()).all()
+                
+                if not person_records:
+                    raise ValueError("未找到该人物在指定时间范围内的出现记录")
+                
+                # 将人物记录转换为帧号到边界框的映射
+                frame_to_bbox = {}
+                for record in person_records:
+                    frame_to_bbox[record.frame_number] = {
+                        'x': record.bbox_x,
+                        'y': record.bbox_y,
+                        'width': record.bbox_width,
+                        'height': record.bbox_height,
+                        'confidence': record.confidence
+                    }
+                
+                
+                # 生成视频片段并添加检测框
+                success = cls._generate_video_segment(
+                    video_path=video_path,
+                    output_path=output_path,
+                    start_frame=start_frame,
+                    end_frame=end_frame,
+                    frame_to_bbox=frame_to_bbox,
+                    task=task
+                )
+                
+                if not success:
+                    raise ValueError("视频片段生成失败")
+                
+                # 更新任务状态为完成
+                task.video_path = output_path
+                task.status = VideoTask.STATUS_COMPLETED
+                task.progress = 100
+                task.completed_at = datetime.now()
+                
+                logger.info(f"视频片段生成任务完成: {task_id}, 输出: {output_path}")
+                return
+                
+            except Exception as e:
+                logger.error(f"视频片段生成失败: {e}")
+                logger.exception(e)
+                task.status = VideoTask.STATUS_FAILED
+                task.error_message = str(e)
+
+    @classmethod
+    def _generate_video_segment(cls, video_path, output_path, start_frame, end_frame, frame_to_bbox, task):
+        """
+        生成视频片段并添加检测框
         
+        参数:
+            video_path: 原始视频路径
+            output_path: 输出视频路径
+            start_frame: 起始帧号
+            end_frame: 结束帧号
+            frame_to_bbox: 帧号到边界框的映射
+            task: 任务对象，用于更新进度
+        
+        返回:
+            成功生成返回True，否则返回False
+        """
         try:
-            # 更新任务状态
-            task.status = VideoTask.STATUS_PROCESSING
-            task.progress = 0
+            # 创建视频帧编码器，用于在视频中解码帧号
+            encoder = VideoFrameEncoder()
             
-            # 获取出现记录
-            appearance_records = []
-            for appearance_id in task.appearances:
-                appearance = PersonAppearance.query.get(appearance_id)
-                if appearance:
-                    appearance_records.append(appearance)
+            # 打开视频文件
+            video_cap = cv2.VideoCapture(video_path)
+            if not video_cap.isOpened():
+                logger.error(f"无法打开视频文件: {video_path}")
+                return False
             
-            if not appearance_records:
-                raise ValueError("未找到有效的出现记录")
+            # 获取视频信息
+            fps = video_cap.get(cv2.CAP_PROP_FPS)
+            width = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            total_frames = int(video_cap.get(cv2.CAP_PROP_FRAME_COUNT))
             
-            # 按时间戳排序
-            appearance_records.sort(key=lambda x: x.timestamp)
+            # 创建视频写入器
+            fourcc = cv2.VideoWriter_fourcc(*'avc1')
+            out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
             
-            # TODO: 实现视频生成逻辑
-            # 1. 根据camera_id和frame_number找到原始视频
-            # 2. 根据timestamp和time_window确定每段视频的起止时间
-            # 3. 提取视频片段并合成
+            # 计算需要处理的总帧数
+            frames_to_process = end_frame - start_frame + 1
             
-            # 模拟处理过程
-            total_steps = len(appearance_records)
-            for i, _ in enumerate(appearance_records):
-                # 更新进度
-                task.progress = int((i + 1) / total_steps * 100)
-                time.sleep(0.1)  # 模拟处理时间
+            # 将视频跳转到大致起始位置（减去一些帧以确保不会错过起始帧）
+            safety_margin = 30  # 安全边际，避免跳过目标帧
+            seek_position = max(0, start_frame - safety_margin)
+            video_cap.set(cv2.CAP_PROP_POS_FRAMES, seek_position)
             
-            # 设置生成的视频文件路径
-            output_filename = f"person_{task.person_id}_{int(time.time())}.mp4"
-            task.video_path = os.path.join(cls.VIDEO_OUTPUT_DIR, output_filename)
+            # 初始化变量
+            processed_frames = 0
+            current_frame_count = seek_position
+            start_found = False
+            end_reached = False
             
-            # 更新任务状态为完成
-            task.status = VideoTask.STATUS_COMPLETED
-            task.progress = 100
-            task.completed_at = datetime.now()
+            # 处理视频帧
+            while not end_reached and video_cap.isOpened():
+                ret, frame = video_cap.read()
+                if not ret:
+                    break
+                    
+                current_frame_count += 1
+                
+                # 获取当前帧的帧号
+                try:
+                    decoded_frame_number = encoder.decode_frame(frame)
+                    
+                    # 如果解码失败，使用估计的帧号
+                    if decoded_frame_number is None:
+                        decoded_frame_number = current_frame_count
+                        logger.warning(f"无法解码帧 {current_frame_count}，使用估计帧号")
+                    
+                except Exception as e:
+                    logger.debug(f"解码帧 {current_frame_count} 失败: {str(e)}")
+                    decoded_frame_number = current_frame_count
+                
+                # 检查是否到达起始帧
+                if not start_found:
+                    if decoded_frame_number >= start_frame:
+                        start_found = True
+                    else:
+                        continue  # 跳过起始帧之前的帧
+                
+                # 检查是否超过结束帧
+                if decoded_frame_number > end_frame:
+                    end_reached = True
+                    break
+                    
+                # 处理找到的帧
+                if start_found:
+                    # 如果当前帧有检测框，添加到视频中
+                    if decoded_frame_number in frame_to_bbox:
+                        bbox = frame_to_bbox[decoded_frame_number]
+                        x, y = int(bbox['x']), int(bbox['y'])
+                        w, h = int(bbox['width']), int(bbox['height'])
+                        
+                        # 画矩形框红色
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                        
+                        # 添加人物ID和置信度
+                        label = f"ID:{task.person_id}"
+                        if bbox.get('confidence'):
+                            label += f" {int(bbox['confidence'] * 100)}%"
+                            
+                        # 绘制标签背景
+                        cv2.rectangle(frame, (x, y - 30), (x + len(label) * 10, y), (0, 0, 0), -1)
+                        # 绘制标签文字
+                        cv2.putText(frame, label, (x + 5, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                    
+                    # 将帧写入输出视频
+                    out.write(frame)
+                    processed_frames += 1
+                    
+                    # 更新进度
+                    if frames_to_process > 0:
+                        progress = min(int((processed_frames / frames_to_process) * 100), 99)
+                        task.progress = progress
+                        
+                        # 每处理10帧打印一次日志
+                        if processed_frames % 10 == 0:
+                            logger.debug(f"视频处理进度: {progress}%, 帧 {decoded_frame_number}/{end_frame}")
             
-            logger.info(f"视频生成任务完成: {task_id}")
+            # 释放资源
+            video_cap.release()
+            out.release()
+            
+            # 检查是否成功处理了足够的帧
+            if processed_frames < 1:
+                logger.error("处理的帧数过少，可能找不到目标帧")
+                return False
+                
+            return True
             
         except Exception as e:
-            logger.error(f"视频生成失败: {e}")
-            task.status = VideoTask.STATUS_FAILED
-            task.error_message = str(e)
+            logger.error(f"生成视频片段失败: {e}")
+            logger.exception(e)
+            return False
     
     @classmethod
     def get_task_status(cls, task_id):

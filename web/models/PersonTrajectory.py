@@ -1,7 +1,7 @@
 from . import db
-import datetime
+from datetime import datetime, timedelta
 
-class PersonTrajectoryCache(db.Model):
+class PersonTrajectory(db.Model):
     __tablename__ = 'person_trajectory_cache'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -35,10 +35,10 @@ class PersonTrajectoryCache(db.Model):
         self.appearance_count = len(trajectory_data.get('appearances', []))
         self.first_seen = trajectory_data.get('first_seen')
         self.last_seen = trajectory_data.get('last_seen')
-        self.expires_at = datetime.datetime.utcnow() + datetime.timedelta(hours=ttl_hours)
+        self.expires_at = datetime.utcnow() + timedelta(hours=ttl_hours)
     
     def update_access_time(self):
-        self.last_accessed = datetime.datetime.utcnow()
+        self.last_accessed = datetime.utcnow()
         db.session.commit()
     
     def is_expired(self):

@@ -62,48 +62,48 @@ def get_persons_list():
 @person_trajectory_bp.route('/person/<int:person_id>/trajectory', methods=['GET'])
 def get_person_trajectory(person_id):
     """获取特定人物的所有出现记录，按时间排序，并进行智能合并"""
-    # try:
+    try:
     # 获取过滤参数
-    time_start = request.args.get('time_start', type=float)
-    time_end = request.args.get('time_end', type=float)
-    camera_id = request.args.get('camera_id', type=int)
-    
-    # 使用优化版本的轨迹数据获取函数
-    trajectory_data = DetectionService.get_person_trajectory(
-        person_id=person_id,
-        time_start=time_start,
-        time_end=time_end,
-        camera_id=camera_id
-    )
-    
-    # 为每个合并后的出现事件添加缩略图URL
-    for appearance in trajectory_data['appearances']:
-        # 使用最佳帧的图像作为缩略图
-        appearance['thumbnail_url'] = (
-            f"/api/person_trajectory/frame/{appearance['camera_id']}/"
-            f"{appearance['best_frame']}/person/{person_id}/image"
+        time_start = request.args.get('time_start', type=float)
+        time_end = request.args.get('time_end', type=float)
+        camera_id = request.args.get('camera_id', type=int)
+        
+        # 轨迹数据获取函数
+        trajectory_data = DetectionService.get_person_trajectory(
+            person_id=person_id,
+            time_start=time_start,
+            time_end=time_end,
+            camera_id=camera_id
         )
         
-        # 添加摄像头名称 (从数据库获取)
-        from ..models.UserCameras import UserCamera
-        camera = UserCamera.query.get(appearance['camera_id'])
-        if camera:
-            appearance['camera_name'] = camera.camera_name
-        else:
-            appearance['camera_name'] = f"摄像头 {appearance['camera_id']}"
-    
-    return jsonify({
-        'success': True,
-        'person_id': trajectory_data['person_id'],
-        'appearance_count': trajectory_data['appearance_count'],  # 现在是合并后的真实出现次数
-        'first_seen': trajectory_data['first_seen'],
-        'last_seen': trajectory_data['last_seen'],
-        'appearances': trajectory_data['appearances']
-    })
+        # 为每个合并后的出现事件添加缩略图URL
+        for appearance in trajectory_data['appearances']:
+            # 使用最佳帧的图像作为缩略图
+            appearance['thumbnail_url'] = (
+                f"/api/person_trajectory/frame/{appearance['camera_id']}/"
+                f"{appearance['best_frame']}/person/{person_id}/image"
+            )
+            
+            # 添加摄像头名称 (从数据库获取)
+            from ..models.UserCameras import UserCamera
+            camera = UserCamera.query.get(appearance['camera_id'])
+            if camera:
+                appearance['camera_name'] = camera.camera_name
+            else:
+                appearance['camera_name'] = f"摄像头 {appearance['camera_id']}"
+        
+        return jsonify({
+            'success': True,
+            'person_id': trajectory_data['person_id'],
+            'appearance_count': trajectory_data['appearance_count'],  # 现在是合并后的真实出现次数
+            'first_seen': trajectory_data['first_seen'],
+            'last_seen': trajectory_data['last_seen'],
+            'appearances': trajectory_data['appearances']
+        })
 
-    # except Exception as e:
-    #     logger.error(f"获取人物轨迹时出错: {str(e)}")
-    #     return jsonify({'success': False, 'message': str(e)}), 500
+    except Exception as e:
+        logger.error(f"获取人物轨迹时出错: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @person_trajectory_bp.route('/person/<int:person_id>/statistics', methods=['GET'])
 def get_person_statistics(person_id):
@@ -161,34 +161,39 @@ def get_appearance_image(camera_id, frame_number, person_id):
         logger.error(f"获取人物图像时出错: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@person_trajectory_bp.route('/person/<int:person_id>/video', methods=['POST'])
-def create_person_video(person_id):
-    """请求生成特定人物的视频片段"""
+@person_trajectory_bp.route('/person/<int:person_id>/video_segment', methods=['POST'])
+def create_person_video_segment(person_id):
+    """生成人物在特定摄像头的特定时间段内的视频片段，并渲染检测框"""
     try:
         # 获取请求参数
         request_data = request.get_json()
         if not request_data:
             return jsonify({'success': False, 'message': '请求数据不能为空'}), 400
         
-        appearances = request_data.get('appearances')
-        time_window = request_data.get('time_window', 5)
+        camera_id = request_data.get('camera_id')
+        start_time = request_data.get('start_time')
+        end_time = request_data.get('end_time')
         
-        # 创建视频生成任务
-        task_id = VideoService.create_person_video_task(
+        if not camera_id or not start_time or not end_time:
+            return jsonify({'success': False, 'message': '缺少必要参数: camera_id, start_time, end_time'}), 400
+            
+        # 创建视频片段生成任务
+        task_id = VideoService.create_person_segment_task(
             person_id=person_id,
-            appearances=appearances,
-            time_window=time_window,
+            camera_id=camera_id,
+            start_time=start_time,
+            end_time=end_time,
             metadata={'user_agent': request.user_agent.string}
         )
         
         return jsonify({
             'success': True,
             'task_id': task_id,
-            'message': '视频生成任务已创建'
+            'message': '视频片段生成任务已创建'
         })
     
     except Exception as e:
-        logger.error(f"创建视频生成任务时出错: {str(e)}")
+        logger.error(f"创建视频片段任务时出错: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @person_trajectory_bp.route('/video/status/<task_id>', methods=['GET'])
@@ -211,7 +216,7 @@ def get_video_status(task_id):
         
         # 如果任务完成，添加视频URL
         if task_status['status'] == 'completed' and task_status['video_path']:
-            video_url = f"/api/person_trajectory/video/download/{task_id}"
+            video_url = task_status['video_path']
             response['video_url'] = video_url
         
         # 如果任务失败，添加错误信息
@@ -224,19 +229,3 @@ def get_video_status(task_id):
         logger.error(f"获取视频状态时出错: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@person_trajectory_bp.route('/video/download/<task_id>', methods=['GET'])
-def download_video(task_id):
-    """下载生成完成的视频文件"""
-    try:
-        # 获取视频路径
-        video_path = VideoService.get_video_path(task_id)
-        
-        if not video_path or not os.path.exists(video_path):
-            return jsonify({'success': False, 'message': '视频不存在或尚未生成完成'}), 404
-        
-        # 返回视频文件
-        return send_file(video_path, mimetype='video/mp4', as_attachment=True)
-    
-    except Exception as e:
-        logger.error(f"下载视频时出错: {str(e)}")
-        return jsonify({'success': False, 'message': str(e)}), 500 

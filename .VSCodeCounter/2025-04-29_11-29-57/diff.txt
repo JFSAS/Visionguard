@@ -1,0 +1,61 @@
+Date : 2025-04-29 11:29:57
+Directory : d:\ProjectA
+Total : 23 files,  2410 codes, 340 comments, 508 blanks, all 3258 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| Python     |         12 |      1,138 |        188 |        285 |      1,611 |
+| CSS        |          3 |        881 |         29 |        163 |      1,073 |
+| JavaScript |          1 |        538 |        112 |        110 |        760 |
+| HTML       |          7 |       -147 |         11 |        -50 |       -186 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                             | files      | code       | comment    | blank      | total      |
++--------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                |         23 |      2,410 |        340 |        508 |      3,258 |
+| scripts                                          |          1 |         -3 |          4 |          0 |          1 |
+| web                                              |         22 |      2,413 |        336 |        508 |      3,257 |
+| web (Files)                                      |          1 |          1 |          0 |          0 |          1 |
+| web\api                                          |          3 |        151 |         20 |         39 |        210 |
+| web\models                                       |          3 |        738 |        104 |        174 |      1,016 |
+| web\routes                                       |          2 |          4 |          1 |          0 |          5 |
+| web\script                                       |          2 |        247 |         59 |         72 |        378 |
+| web\static                                       |          4 |      1,419 |        141 |        273 |      1,833 |
+| web\static\css                                   |          3 |        881 |         29 |        163 |      1,073 |
+| web\static\js                                    |          1 |        538 |        112 |        110 |        760 |
+| web\templates                                    |          7 |       -147 |         11 |        -50 |       -186 |
++--------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                         | language   | code       | comment    | blank      | total      |
++--------------------------------------------------+------------+------------+------------+------------+------------+
+| d:\ProjectA\scripts\import_sqlite.py             | Python     |         -3 |          4 |          0 |          1 |
+| d:\ProjectA\web\api\__init__.py                  | Python     |          1 |          0 |         -1 |          0 |
+| d:\ProjectA\web\api\detection_api.py             | Python     |        -27 |         -4 |         -6 |        -37 |
+| d:\ProjectA\web\api\person_trajectory_api.py     | Python     |        177 |         24 |         46 |        247 |
+| d:\ProjectA\web\app.py                           | Python     |          1 |          0 |          0 |          1 |
+| d:\ProjectA\web\models\DetectionService.py       | Python     |        255 |         31 |         51 |        337 |
+| d:\ProjectA\web\models\PersonTrajectory.py       | Python     |         42 |          3 |          9 |         54 |
+| d:\ProjectA\web\models\VideoService.py           | Python     |        441 |         70 |        114 |        625 |
+| d:\ProjectA\web\routes\__init__.py               | Python     |          0 |          0 |          1 |          1 |
+| d:\ProjectA\web\routes\dashboard.py              | Python     |          4 |          1 |         -1 |          4 |
+| d:\ProjectA\web\script\VideoFrameEncoder.py      | Python     |        199 |         40 |         57 |        296 |
+| d:\ProjectA\web\script\import_sqlite.py          | Python     |         48 |         19 |         15 |         82 |
+| d:\ProjectA\web\static\css\add-camera.css        | CSS        |        346 |          9 |         60 |        415 |
+| d:\ProjectA\web\static\css\monitor-detail.css    | CSS        |          0 |          0 |          2 |          2 |
+| d:\ProjectA\web\static\css\person_trajectory.css | CSS        |        535 |         20 |        101 |        656 |
+| d:\ProjectA\web\static\js\person_trajectory.js   | JavaScript |        538 |        112 |        110 |        760 |
+| d:\ProjectA\web\templates\add-camera.html        | HTML       |       -356 |          0 |        -60 |       -416 |
+| d:\ProjectA\web\templates\analysis.html          | HTML       |          1 |          0 |          0 |          1 |
+| d:\ProjectA\web\templates\camera-management.html | HTML       |          4 |          0 |          0 |          4 |
+| d:\ProjectA\web\templates\edit-camera.html       | HTML       |          4 |          0 |          0 |          4 |
+| d:\ProjectA\web\templates\monitor-detail.html    | HTML       |         -4 |          0 |          0 |         -4 |
+| d:\ProjectA\web\templates\person_trajectory.html | HTML       |        203 |         11 |         10 |        224 |
+| d:\ProjectA\web\templates\profile.html           | HTML       |          1 |          0 |          0 |          1 |
+| Total                                            |            |      2,410 |        340 |        508 |      3,258 |
++--------------------------------------------------+------------+------------+------------+------------+------------+

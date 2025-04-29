@@ -1,0 +1,115 @@
+Date : 2025-04-29 11:29:57
+Directory : d:\ProjectA
+Total : 70 files,  12927 codes, 1278 comments, 2551 blanks, all 16756 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| CSS              |          9 |      3,955 |        109 |        668 |      4,732 |
+| JavaScript       |         12 |      3,443 |        694 |        706 |      4,843 |
+| Python           |         30 |      2,664 |        381 |        633 |      3,678 |
+| HTML             |         10 |      2,193 |         61 |        232 |      2,486 |
+| Markdown         |          5 |        561 |          0 |        276 |        837 |
+| NGINX Conf       |          2 |         85 |         25 |         30 |        140 |
+| Shell Script     |          1 |         16 |          8 |          6 |         30 |
+| pip requirements |          1 |         10 |          0 |          0 |         10 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                             | files      | code       | comment    | blank      | total      |
++--------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                |         70 |     12,927 |      1,278 |      2,551 |     16,756 |
+| ffmpeg-service                                   |          4 |        237 |         55 |         71 |        363 |
+| nginx                                            |          1 |         77 |         18 |         27 |        122 |
+| scripts                                          |          1 |         45 |         23 |         15 |         83 |
+| web                                              |         62 |     12,331 |      1,182 |      2,321 |     15,834 |
+| web (Files)                                      |          6 |        227 |         10 |        106 |        343 |
+| web\api                                          |          9 |        959 |        130 |        220 |      1,309 |
+| web\models                                       |          9 |      1,066 |        116 |        235 |      1,417 |
+| web\routes                                       |          4 |         92 |          3 |         19 |        114 |
+| web\script                                       |          2 |        247 |         59 |         72 |        378 |
+| web\static                                       |         21 |      7,398 |        803 |      1,374 |      9,575 |
+| web\static\css                                   |          9 |      3,955 |        109 |        668 |      4,732 |
+| web\static\js                                    |         12 |      3,443 |        694 |        706 |      4,843 |
+| web\templates                                    |         11 |      2,342 |         61 |        295 |      2,698 |
+| 文档                                               |          2 |        237 |          0 |        117 |        354 |
++--------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                         | language         | code       | comment    | blank      | total      |
++--------------------------------------------------+------------------+------------+------------+------------+------------+
+| d:\ProjectA\ffmpeg-service\README.md             | Markdown         |         14 |          0 |          5 |         19 |
+| d:\ProjectA\ffmpeg-service\VideoFrameEncoder.py  | Python           |        199 |         40 |         57 |        296 |
+| d:\ProjectA\ffmpeg-service\ffmpeg-stream.conf    | NGINX Conf       |          8 |          7 |          3 |         18 |
+| d:\ProjectA\ffmpeg-service\ffmpeg-stream.sh      | Shell Script     |         16 |          8 |          6 |         30 |
+| d:\ProjectA\nginx\nginx.conf                     | NGINX Conf       |         77 |         18 |         27 |        122 |
+| d:\ProjectA\scripts\import_sqlite.py             | Python           |         45 |         23 |         15 |         83 |
+| d:\ProjectA\web\README.md                        | Markdown         |        161 |          0 |         91 |        252 |
+| d:\ProjectA\web\__init__.py                      | Python           |          0 |          0 |          1 |          1 |
+| d:\ProjectA\web\api\__init__.py                  | Python           |          7 |          1 |          0 |          8 |
+| d:\ProjectA\web\api\ai_connector.py              | Python           |         79 |         30 |         26 |        135 |
+| d:\ProjectA\web\api\alerts.py                    | Python           |         85 |          3 |          9 |         97 |
+| d:\ProjectA\web\api\analysis.py                  | Python           |        168 |         25 |         38 |        231 |
+| d:\ProjectA\web\api\auth.py                      | Python           |        100 |         11 |         26 |        137 |
+| d:\ProjectA\web\api\cameras.py                   | Python           |        100 |         16 |         28 |        144 |
+| d:\ProjectA\web\api\detection_api.py             | Python           |         95 |          9 |         22 |        126 |
+| d:\ProjectA\web\api\person_trajectory_api.py     | Python           |        177 |         24 |         46 |        247 |
+| d:\ProjectA\web\api\user_cameras.py              | Python           |        148 |         11 |         25 |        184 |
+| d:\ProjectA\web\app.py                           | Python           |         30 |          7 |          8 |         45 |
+| d:\ProjectA\web\config.py                        | Python           |         20 |          2 |          5 |         27 |
+| d:\ProjectA\web\extensions.py                    | Python           |          6 |          1 |          1 |          8 |
+| d:\ProjectA\web\models\DetectionFrames.py        | Python           |         38 |          2 |          8 |         48 |
+| d:\ProjectA\web\models\DetectionService.py       | Python           |        373 |         36 |         72 |        481 |
+| d:\ProjectA\web\models\FaceAppearances.py        | Python           |         51 |          2 |          9 |         62 |
+| d:\ProjectA\web\models\PersonAppearances.py      | Python           |         51 |          2 |          9 |         62 |
+| d:\ProjectA\web\models\PersonTrajectory.py       | Python           |         42 |          3 |          9 |         54 |
+| d:\ProjectA\web\models\UserCameras.py            | Python           |         43 |          1 |          8 |         52 |
+| d:\ProjectA\web\models\Users.py                  | Python           |         24 |          0 |          6 |         30 |
+| d:\ProjectA\web\models\VideoService.py           | Python           |        441 |         70 |        114 |        625 |
+| d:\ProjectA\web\models\__init__.py               | Python           |          3 |          0 |          0 |          3 |
+| d:\ProjectA\web\requirements.txt                 | pip requirements |         10 |          0 |          0 |         10 |
+| d:\ProjectA\web\routes\__init__.py               | Python           |          7 |          0 |          2 |          9 |
+| d:\ProjectA\web\routes\auth.py                   | Python           |         20 |          0 |          4 |         24 |
+| d:\ProjectA\web\routes\camera_management.py      | Python           |         32 |          0 |          5 |         37 |
+| d:\ProjectA\web\routes\dashboard.py              | Python           |         33 |          3 |          8 |         44 |
+| d:\ProjectA\web\script\VideoFrameEncoder.py      | Python           |        199 |         40 |         57 |        296 |
+| d:\ProjectA\web\script\import_sqlite.py          | Python           |         48 |         19 |         15 |         82 |
+| d:\ProjectA\web\static\css\add-camera.css        | CSS              |        346 |          9 |         60 |        415 |
+| d:\ProjectA\web\static\css\analysis.css          | CSS              |        178 |          4 |         37 |        219 |
+| d:\ProjectA\web\static\css\common.css            | CSS              |        306 |          8 |         56 |        370 |
+| d:\ProjectA\web\static\css\login.css             | CSS              |        134 |          3 |         21 |        158 |
+| d:\ProjectA\web\static\css\monitor-detail.css    | CSS              |        364 |         12 |         66 |        442 |
+| d:\ProjectA\web\static\css\person_trajectory.css | CSS              |        535 |         20 |        101 |        656 |
+| d:\ProjectA\web\static\css\profile.css           | CSS              |        494 |         10 |         69 |        573 |
+| d:\ProjectA\web\static\css\situation.css         | CSS              |      1,348 |         32 |        211 |      1,591 |
+| d:\ProjectA\web\static\css\style.css             | CSS              |        250 |         11 |         47 |        308 |
+| d:\ProjectA\web\static\js\add-camera.js          | JavaScript       |        316 |         54 |         71 |        441 |
+| d:\ProjectA\web\static\js\analysis.js            | JavaScript       |        295 |         30 |         56 |        381 |
+| d:\ProjectA\web\static\js\camera-management.js   | JavaScript       |        321 |         43 |         49 |        413 |
+| d:\ProjectA\web\static\js\common.js              | JavaScript       |        285 |         63 |         48 |        396 |
+| d:\ProjectA\web\static\js\flv.min.js             | JavaScript       |          2 |          8 |          0 |         10 |
+| d:\ProjectA\web\static\js\login.js               | JavaScript       |         42 |          7 |          9 |         58 |
+| d:\ProjectA\web\static\js\monitor-detail.js      | JavaScript       |        236 |         57 |         69 |        362 |
+| d:\ProjectA\web\static\js\person_trajectory.js   | JavaScript       |        538 |        112 |        110 |        760 |
+| d:\ProjectA\web\static\js\profile.js             | JavaScript       |        338 |         35 |         56 |        429 |
+| d:\ProjectA\web\static\js\register.js            | JavaScript       |         53 |          7 |         11 |         71 |
+| d:\ProjectA\web\static\js\situation.js           | JavaScript       |        555 |         84 |        109 |        748 |
+| d:\ProjectA\web\static\js\video-flv.js           | JavaScript       |        462 |        194 |        118 |        774 |
+| d:\ProjectA\web\templates\README.md              | Markdown         |        149 |          0 |         63 |        212 |
+| d:\ProjectA\web\templates\add-camera.html        | HTML             |        193 |          5 |         22 |        220 |
+| d:\ProjectA\web\templates\analysis.html          | HTML             |        117 |          5 |         10 |        132 |
+| d:\ProjectA\web\templates\camera-management.html | HTML             |        567 |          8 |         82 |        657 |
+| d:\ProjectA\web\templates\edit-camera.html       | HTML             |        554 |          4 |         80 |        638 |
+| d:\ProjectA\web\templates\index.html             | HTML             |        254 |         13 |          9 |        276 |
+| d:\ProjectA\web\templates\login.html             | HTML             |         44 |          0 |          0 |         44 |
+| d:\ProjectA\web\templates\monitor-detail.html    | HTML             |        106 |         10 |          6 |        122 |
+| d:\ProjectA\web\templates\person_trajectory.html | HTML             |        203 |         11 |         10 |        224 |
+| d:\ProjectA\web\templates\profile.html           | HTML             |        103 |          5 |         10 |        118 |
+| d:\ProjectA\web\templates\register.html          | HTML             |         52 |          0 |          3 |         55 |
+| d:\ProjectA\文档\时间同步.md                           | Markdown         |        177 |          0 |         51 |        228 |
+| d:\ProjectA\文档\调研物理世界计算机视觉攻击.md                  | Markdown         |         60 |          0 |         66 |        126 |
+| Total                                            |                  |     12,927 |      1,278 |      2,551 |     16,756 |
++--------------------------------------------------+------------------+------------+------------+------------+------------+

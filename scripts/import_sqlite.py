@@ -75,6 +75,7 @@ if __name__ == "__main__":
     success = import_data('../test/view-GL2.json',2)
     success = import_data('../test/view-GL5.json',3)
     success = import_data('../test/view-GL6.json',4)
+    # success = import_data('../test/1(3).json', 3)
     sys.exit(0 if success else 1)
 
 

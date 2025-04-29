@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (searchTerm) {
             // TODO: 实现搜索API调用
             alert('搜索功能尚未实现: ' + searchTerm);
-        }
+        } 
     });
     
     // 搜索框回车事件
@@ -123,22 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // 生成视频按钮点击事件
-    generateVideoBtn.addEventListener('click', function() {
-        if (!selectedPersonId) return;
-        
-        // 显示视频模态窗口
-        videoModal.classList.add('active');
-        document.getElementById('video-loading').style.display = 'block';
-        document.getElementById('video-player').classList.add('hidden');
-        
-        // 重置进度
-        document.querySelector('.progress-fill').style.width = '0%';
-        document.querySelector('.progress-text').textContent = '0%';
-        
-        // 创建视频生成任务
-        createVideoTask(selectedPersonId);
-    });
+
     
     // 查看统计按钮点击事件
     viewStatisticsBtn.addEventListener('click', function() {
@@ -190,12 +175,12 @@ document.addEventListener('DOMContentLoaded', function() {
         personsGrid.innerHTML = '<div class="loading">加载中...</div>';
         
         // 发起API请求
-        fetch(`/api/person_trajectory/list?page=${currentPage}&per_page=10&sort_by=${sortBy}&order=${sortOrder}`)
+        fetch(`/api/person_trajectory/list?page=${currentPage}&per_page=6&sort_by=${sortBy}&order=${sortOrder}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     // 更新分页信息
-                    totalPages = data.pages || Math.ceil(data.total_count / 10);
+                    totalPages = data.pages || Math.ceil(data.total_count / 6);
                     currentPageSpan.textContent = currentPage;
                     totalPagesSpan.textContent = totalPages;
                     
@@ -417,6 +402,8 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (duration > 5) durationClass = 'medium-duration';
         else durationClass = 'short-duration';
         
+        const buttonId = `video-btn-${app.camera_id}-${Math.floor(app.start_time)}`;
+
         timelineItem.innerHTML = `
             <div class="timeline-item-header">
                 <div class="timeline-timestamp">${formatDateTime(startTimestamp)}</div>
@@ -433,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p>总帧数: ${app.frame_count}</p>
                     <p>置信度: ${(app.best_confidence || 0).toFixed(2)}</p>
                     <div class="timeline-actions">
-                        <button class="btn btn-small btn-outline view-event-btn" 
+                        <button id="${buttonId}" class="btn btn-small btn-outline view-event-btn" 
                                 data-camera-id="${app.camera_id}" 
                                 data-start="${app.start_time}"
                                 data-end="${app.end_time}">
@@ -445,6 +432,9 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         timeline.appendChild(timelineItem);
+
+    createVideoSegmentTaskAsync(selectedPersonId, app.camera_id, app.start_time, app.end_time, buttonId);
+
     });
     }
     
@@ -584,105 +574,131 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(style);
     }
     
-    // 创建视频生成任务
-    function createVideoTask(personId) {
-        // 发起API请求
-        fetch(`/api/person_trajectory/person/${personId}/video`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                time_window: 5
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // 保存任务ID并开始轮询任务状态
-                const taskId = data.task_id;
-                pollVideoTaskStatus(taskId);
-            } else {
-                document.getElementById('video-loading').innerHTML = 
-                    `<div class="error">创建视频任务失败: ${data.message || '未知错误'}</div>`;
-            }
-        })
-        .catch(error => {
-            console.error('创建视频任务失败:', error);
-            document.getElementById('video-loading').innerHTML = 
-                `<div class="error">创建视频任务失败: ${error.message}</div>`;
-        });
-    }
-    
-    // 轮询视频任务状态
-    function pollVideoTaskStatus(taskId) {
-        // 清除之前的定时器
-        if (currentVideoTask && currentVideoTask.interval) {
-            clearInterval(currentVideoTask.interval);
+    // 异步创建视频片段任务并监控状态
+function createVideoSegmentTaskAsync(personId, cameraId, startTime, endTime, buttonId) {
+    // 发起API请求
+    fetch(`/api/person_trajectory/person/${personId}/video_segment`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            camera_id: cameraId,
+            start_time: parseFloat(startTime),
+            end_time: parseFloat(endTime)
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // 保存任务ID并开始轮询任务状态
+            // log
+            console.log(data.task_id, data.message)
+
+            const taskId = data.task_id;
+            monitorVideoTaskStatus(taskId, buttonId);
+        } else {
+            updateButtonStatus(buttonId, 'error', data.message || '未知错误');
         }
-        
-        // 重置UI
-        document.getElementById('video-loading').style.display = 'block';
-        document.getElementById('video-player').classList.add('hidden');
-        
-        // 创建新的任务对象
-        currentVideoTask = {
-            taskId: taskId,
-            interval: null
-        };
-        
-        // 开始轮询
-        currentVideoTask.interval = setInterval(() => {
-            checkVideoTaskStatus(taskId);
-        }, 1000);
-    }
-    
-    // 检查视频任务状态
-    function checkVideoTaskStatus(taskId) {
+    })
+    .catch(error => {
+        console.error('创建视频片段任务失败:', error);
+        updateButtonStatus(buttonId, 'error', error.message);
+    });
+}
+
+   // 监控视频任务状态
+function monitorVideoTaskStatus(taskId, buttonId) {
+    // 使用递归轮询而不是setInterval，以避免任务过多时的性能问题
+    function checkStatus() {
         fetch(`/api/person_trajectory/video/status/${taskId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // 更新进度条
-                    document.querySelector('.progress-fill').style.width = `${data.progress}%`;
-                    document.querySelector('.progress-text').textContent = `${data.progress}%`;
-                    
-                    // 检查任务状态
                     if (data.status === 'completed') {
-                        // 任务完成，显示视频播放器
-                        clearInterval(currentVideoTask.interval);
-                        loadVideo(data.video_url);
+                        // 任务完成，更新按钮为可播放状态
+                        updateButtonStatus(buttonId, 'ready', data.video_url);
                     } else if (data.status === 'failed') {
                         // 任务失败
-                        clearInterval(currentVideoTask.interval);
-                        document.getElementById('video-loading').innerHTML = 
-                            `<div class="error">视频生成失败: ${data.error_message || '未知错误'}</div>`;
+                        console.error("加载视频失败",taskId);
+                        updateButtonStatus(buttonId, 'error', data.error_message || '处理失败');
+                    } else {
+                        // 任务进行中，更新进度
+                        updateButtonStatus(buttonId, 'processing', data.progress);
+                        
+                        // 继续轮询
+                        setTimeout(checkStatus, 2000);
                     }
                 } else {
-                    // API请求失败
-                    clearInterval(currentVideoTask.interval);
-                    document.getElementById('video-loading').innerHTML = 
-                        `<div class="error">检查任务状态失败: ${data.message || '未知错误'}</div>`;
+                    updateButtonStatus(buttonId, 'error', data.message || '状态检查失败');
                 }
             })
             .catch(error => {
                 console.error('检查任务状态失败:', error);
-                clearInterval(currentVideoTask.interval);
-                document.getElementById('video-loading').innerHTML = 
-                    `<div class="error">检查任务状态失败: ${error.message}</div>`;
+                updateButtonStatus(buttonId, 'error', error.message);
             });
     }
     
-    // 加载视频
-    function loadVideo(videoUrl) {
-        document.getElementById('video-loading').style.display = 'none';
-        document.getElementById('video-player').classList.remove('hidden');
-        
-        const videoElement = document.getElementById('video-element');
-        videoElement.src = videoUrl;
-        videoElement.load();
-    }
+    // 开始检查状态
+    setTimeout(checkStatus, 1000);
+}
+   
+// 更新按钮状态
+function updateButtonStatus(buttonId, status, data) {
+    const button = document.getElementById(buttonId);
+    if (!button) return;
     
+    switch(status) {
+        case 'processing':
+            // 更新处理进度
+            button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 处理中 ${data}%`;
+            button.disabled = true;
+            break;
+            
+        case 'ready':
+            // 视频准备完毕，可以播放
+            button.innerHTML = `<i class="fas fa-film"></i> 查看活动视频`;
+            button.classList.add('btn-success');
+            button.disabled = false;
+            button.setAttribute('data-video-url', data);
+            
+            // 添加点击事件监听
+            button.onclick = function() {
+                showVideoPlayer(data);
+            };
+            break;
+            
+        case 'error':
+            // 发生错误
+            button.innerHTML = `<i class="fas fa-exclamation-triangle"></i> 处理失败`;
+            button.classList.add('btn-danger');
+            button.title = data; // 在工具提示中显示错误信息
+            button.disabled = true;
+            break;
+    }
+}
+    // 显示视频播放器
+function showVideoPlayer(videoUrl) {
+    // 显示视频模态窗口
+    const videoModal = document.getElementById('video-modal');
+    videoModal.classList.add('active');
+    
+    // 直接加载视频，不显示加载界面
+    document.getElementById('video-loading').style.display = 'none';
+    document.getElementById('video-player').classList.remove('hidden');
+    
+    // 加载视频
+    const videoPlayer = document.getElementById('video-player');
+    videoPlayer.innerHTML  = `
+    <video controls="" muted="" autoplay="" id="video-element">
+                                <source id="video-source" src="${videoUrl}" type="video/mp4">
+                                您的浏览器不支持HTML5视频播放
+                            </video>
+    `
+}
+
+
+
     // 格式化日期时间
     function formatDateTime(date) {
         return date.toLocaleString('zh-CN', {
@@ -698,3 +714,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初始加载人物列表
     loadPersonsList();
 }); 
+
+

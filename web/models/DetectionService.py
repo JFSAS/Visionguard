@@ -4,6 +4,7 @@ from .DetectionFrames import DetectionFrame
 from .PersonAppearances import PersonAppearance
 from .FaceAppearances import FaceAppearance
 from .UserCameras import UserCamera
+from .PersonTrajectory import PersonTrajectory
 import json
 from sqlalchemy import func, desc
 
@@ -362,7 +363,7 @@ class DetectionService:
     
         
     @staticmethod
-    def get_person_trajectory(person_id, time_start=None, time_end=None, camera_id=None):
+    def get_person_trajectory(person_id, time_start=None, time_end=None, camera_id=None, use_cache=True):
         """
         获取特定人物的完整轨迹
         
@@ -371,10 +372,27 @@ class DetectionService:
             time_start: 起始时间戳
             time_end: 结束时间戳
             camera_id: 摄像头ID
+            use_cache: 是否使用缓存
             
         返回:
             人物轨迹信息
         """
+        if use_cache:
+            # 查找匹配的缓存
+            cache_query = PersonTrajectory.query.filter_by(
+                person_id=person_id,
+                time_start=time_start,
+                time_end=time_end,
+                camera_id=camera_id
+            )
+            cached = cache_query.first()
+            
+            # 如果存在有效缓存，直接返回
+            if cached and not cached.is_expired():
+                cached.update_access_time()
+                return cached.trajectory_data
+        
+
         query = PersonAppearance.query.filter_by(person_id=person_id)
         
         # 应用过滤条件
@@ -431,11 +449,33 @@ class DetectionService:
 
           
         # 返回优化后的数据
-        return {
+        trajectory_data =   {
             'person_id': person_id,
             'appearance_count': len(merged_events),  # 真实出现次数
             'first_seen': raw_data['first_seen'],
             'last_seen': raw_data['last_seen'],
             'appearances': merged_events
         }
-    
+    # 存储缓存
+        if use_cache and appearances:
+            # 删除旧缓存
+            PersonTrajectory.query.filter_by(
+                person_id=person_id,
+                time_start=time_start,
+                time_end=time_end,
+                camera_id=camera_id
+            ).delete()
+            
+            # 创建新缓存
+            cache = PersonTrajectory(
+                person_id=person_id,
+                time_start=time_start,
+                time_end=time_end,
+                camera_id=camera_id,
+                trajectory_data=trajectory_data
+            )
+            db.session.add(cache)
+            db.session.commit()
+        
+        return trajectory_data       
+        

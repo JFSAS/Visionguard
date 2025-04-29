@@ -520,9 +520,9 @@ _cleanupPersonTracker(currentFrame) {
 
     this.lastRequestedFrame = startFrame + count - 1;
     this.requestInProgress = true;
-    console.log(
-      `请求帧数据: ${this.cameraId}, 起始帧: ${startFrame}, 数量: ${count}`
-    );
+    // console.log(
+    //   `请求帧数据: ${this.cameraId}, 起始帧: ${startFrame}, 数量: ${count}`
+    // );
 
     // 发起HTTP请求
     fetch(`/api/detection/frames/${this.cameraId}/${startFrame}/${count}`)
@@ -536,14 +536,14 @@ _cleanupPersonTracker(currentFrame) {
         if (data.success && data.frames) {
           // 更新帧缓存
           this.frameDataCache = { ...this.frameDataCache, ...data.frames };
-          console.log(`请求数据成功 ：加载 ${data.actual_count} 帧检测数据, 当前已请求: ${this.lastRequestedFrame}`);
+          // console.log(`请求数据成功 ：加载 ${data.actual_count} 帧检测数据, 当前已请求: ${this.lastRequestedFrame}`);
         }
       })
       .catch((error) => {
-        console.error("请求帧数据失败:", error);
+        // console.error("请求帧数据失败:", error);
       })
       .finally(() => {
-        console.log(`未请求到数据 ：已请求至${this.lastRequestedFrame}`);
+        // console.log(`未请求到数据 ：已请求至${this.lastRequestedFrame}`);
         this.requestInProgress = false; // 请求完成，重置标志
       });
   }
@@ -644,7 +644,9 @@ _cleanupPersonTracker(currentFrame) {
       const box = person.bbox;
       this.ctx.strokeStyle = box.color || "green";
       this.ctx.lineWidth = box.lineWidth || 3;
-
+      if (currentTrackingPerson && currentTrackingPerson.id === person.id) {
+        this.ctx.strokeStyle = "red";
+      }
       // 绘制矩形
       this.ctx.strokeRect(box.x, box.y, box.width, box.height);
 
@@ -655,6 +657,7 @@ _cleanupPersonTracker(currentFrame) {
         const textWidth = 120;
 
         this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+
         this.ctx.fillRect(box.x, box.y - 25, textWidth + 30, 20);
 
         // 绘制文本

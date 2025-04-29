@@ -206,8 +206,11 @@ function updatePersonList(filter = 'all') {
                 <div class="person-status">状态: ${person.status === 'normal' ? '正常' : '可疑'}</div>
             </div>
         `;
-        
-        // 添加点击事件，选中当前人物
+        if (person.id == currentTrackingPerson?.id) {
+            personItem.classList.add('selected');
+        }
+
+            // 添加点击事件，选中当前人物
         personItem.addEventListener('click', function() {
             // 移除其他项目的选中状态
             document.querySelectorAll('.person-item.selected').forEach(item => {

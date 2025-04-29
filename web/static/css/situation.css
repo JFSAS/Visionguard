@@ -187,6 +187,11 @@
     left: 40%;
 }
 
+.hotspot-4 {
+    top: 80%;
+    left: 75%;
+}
+
 /* Heatmap controls */
 .heatmap-controls {
     position: absolute;
