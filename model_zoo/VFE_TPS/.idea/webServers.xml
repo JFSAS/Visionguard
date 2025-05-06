@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="985a3f01-b6a6-4748-a55d-fc3fa77f1e90" name="clip reid">
+        <fileTransfer accessType="SFTP" host="connect.westc.gpuhub.com" port="34183" sshConfigId="f2aa80bc-bbf0-4a31-bc52-4bf32ead4517" sshConfig="root@connect.westc.gpuhub.com:34183 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
