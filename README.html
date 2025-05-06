@@ -1,4 +1,3 @@
-+
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -8,7 +7,7 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="icon" href="img/logo.png" type="image/png">
-    <title>HaMonitorSentry 高层智能监测系统</title>
+    <title>多模安御：大数据驱动的多模态"天眼"系统</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -101,142 +100,120 @@
             text-decoration: none;
             color: #0056b3;
         }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 75%;
+            margin: 20px auto;
+        }
+        
+        .image-grid img {
+            width: 100%;
+            margin: 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>HaMonitorSentry 高层智能监测系统</h1>
-        <h4>第17届中国大学生计算机设计大赛 人工智能应用-人工智能实践赛 作品</h4>
+        <h1>多模安御：大数据驱动的多模态"天眼"系统</h1>
         <p class="github-link" style="text-align: center;">
-            <a href="https://github.com/mumuyeye/HaMonitorSentry">
+            <a href="https://github.com/JFSAS/Visionguard">
                 <img src="img/github-mark.png" alt="GitHub">
                 <span>项目代码</span>
             </a>
         </p>
         <blockquote>
-            <p><strong>HaMonitorSentry</strong>
-                是专为高层建筑和人群密集区设计的高级智能安防系统。该系统结合高分辨率、高帧率摄像技术和双角度监测策略，适用于智慧安防、智慧社区和智能建筑等行业，致力于与物业、企业、政府合作，以保障公民的生命和财产安全。
+            <p><strong>多模安御</strong>
+                是一款专为公安实战场景设计的智能视频分析平台，聚焦嫌疑人定位与行为轨迹还原难题。该系统结合多模态深度学习、视觉语言对齐和行人重识别等前沿技术，适用于公共安全、智慧城市等领域，致力于提升案件侦查效率和保障社会安全。
             </p>
         </blockquote>
-        <ul>
-            <li>本作品立足于 <strong>智慧安防</strong>、<strong>智慧社区</strong>、<strong>智能建筑</strong> 等国家新兴技术赋能行业，应用于
-                <strong>高空抛物溯源</strong> 和 <strong>高层危险行为监测</strong> 等各类场景，致力于保障公民的生命财产安全。
-            </li>
-        </ul>
-        <img src="image/README/1715679541656.png" alt="监测示例" />
+        <p>随着我国城市化进程的加快，公共安全治理面临诸多挑战。案件类型日益复杂、基层警力紧张，传统依赖人力查看海量监控视频的方式已难以满足实际办案需求。因此，推进人工智能技术在监控安防领域的发展成为迫切需求。</p>
+        <img src="img/image-4.png" alt="安防需求" />
 
+        <p>目前，各个国家大力支持推进监控安防系统的发展，例如我国的雪亮工程以及天网工程等。</p>
+        <img src="img/image.png" alt="安防工程" />
+
+        <p>但目前已有系统仍有大量不足，例如"雪亮工程"推动了城市安防摄像头的高密度部署，但日均产生的大量监控视频仍缺乏智能化利用手段。现有系统大多依赖人脸识别数据库比对，难以适应真实复杂环境。</p>
+        
+        <h2>现有系统的痛点</h2>
         <ul>
-            <li>有数据显示，我国近三年来高层事故数量<strong>连年增长</strong>，这些触目惊心的数字警示着我们正面临着<strong>严峻的社会安防威胁</strong>；</li>
-            <li>但同时，令人振奋的是，国家已<strong>发布多项政策</strong>，来支持我国智能安防的建设与发展；</li>
-            <li><strong>公共安全领域投入也逐步扩大</strong>，总体呈现逐步增长之势，智能安防行业市场规模也持续增长；</li>
-            <li>我们总结了目前仍然难以解决的痛点：
-            </li>
-            <ul>
-                <li>高空事故发生前<strong>无法及时警示</strong>有关主体</li>
-                <li>存在着“<strong>取证难、判定难、定罪难</strong>”的困境</li>
-                <li><strong>民众</strong>仍对高空抛物事故的发生<strong>心存侥幸</strong></li>
-                <li>当前技术在处理复杂监测场景时存在挑战：<strong>准确性弱、鲁棒性差、实时性弱、未针对优化</strong></li>
-                <li>当今市面上现有的高层监测设备大多<strong>功能狭窄、数据不全、场景局限、监测欠佳</strong></li>
-            </ul>
-            <li>故可见，现有措施和设备均<strong>无法良好地满足智能安防的要求以全方位保护人民生命财产安全！</strong></li>
+            <li><strong>人脸识别技术的局限性</strong><br>
+                传统监控系统在人脸识别标准数据集上表现优异，但在实际应用中，嫌疑人往往通过佩戴口罩、眼镜等方式遮挡面部，导致识别失败，系统目标追踪能力较弱。</li>
+            
+            <li><strong>轨迹分析支持不足</strong><br>
+                当前智能监控系统缺乏对行为轨迹、时间与空间信息的融合分析，缺少对历史数据的深入挖掘能力，难以有效支持案件溯源与综合研判。</li>
+            
+            <li><strong>缺乏多模态综合信息分析能力</strong><br>
+                在侦查实践中，人物轨迹分析尤为重要。警方需花费大量时间手动翻查录像来重建嫌疑人行踪，效率低下。对于缺乏图像资料、仅有语言描述等模糊线索的案件，现有系统无能为力，使得侦破难度加剧、人力成本激增。</li>
+            
+            <li><strong>数据壁垒与"数据孤岛"问题</strong><br>
+                跨区域案件频发暴露出安防数据壁垒严重。由于隐私保护和数据合规要求，各地安防数据难以集中共享，AI 模型训练数据受限，跨域识别精度下降，制约了智能监控系统的整体效能与实战价值。</li>
         </ul>
 
-        <img src="image/README/背景_拼图.jpg" alt="背景介绍" style="zoom:50%;" />
+        <div class="image-grid">
+            <img src="img/image-1.png" alt="安防挑战1" />
+            <img src="img/image-2.png" alt="安防挑战2" />
+            <img src="img/image-3.png" alt="安防挑战3" />
+            <img src="img/image-4.png" alt="安防挑战4" />
+        </div>
 
-        <ul>
-            <li>因此，我们设计了对应的解决方案：一套提供足够威慑力、有效监督民众违法行为、保障民众生命财产安全的<strong>高层智能监测系统</strong>；</li>
-        </ul>
-        <img src="image/README/1715696975686.jpg" alt="解决方案" style="zoom:50%;" />
+        <h2>"多模安御"系统的创新解决方案</h2>
+        <p>我们考虑了以上诸多缺陷，最终提出一项创新解决方案，多模安御-大数据驱动的多模态'天眼'系统。</p>
+        <img src="img/image-6.png" alt="系统概览" />
 
-        <ul>
-            <li>与现有产品对比，我们将<strong>多算法相互结合</strong>，<strong>功能全面</strong>，在高层智能监测领域<strong>独具优势</strong>。</li>
-        </ul>
-        <img src="image/README/1715697052594.jpg" alt="竞品分析" style="zoom:50%;" />
+        <p>"多模安御"系统是一款专为公安实战场景设计的智能视频分析平台，聚焦嫌疑人定位与行为轨迹还原难题。</p>
+        
+        <p>平台融合多模态深度学习、视觉语言对齐、行人重识别与联邦学习等前沿技术，打破传统依赖人脸识别的限制。即使缺乏清晰人像信息，也能通过语言描述或模糊线索，实现跨视频、跨时间的人物定位与追踪。</p>
+        
+        <p>系统构建了完整的多模态检索链路，结合自研视觉定位算法（ALVG）与无监督行人重识别模型（VI-ReID），实现复杂场景下目标人物的准确检索与轨迹重建。</p>
+        
+        <p>无论嫌疑人有伪装、图像清晰度低或现场无完整图像资料，系统都能从海量视频中挖掘潜在线索，显著提升案件还原效率。</p>
 
-        <br>
-        <h2>核心功能</h2>
-        <h3>高空抛/坠物监测</h3>
+        <h3>联邦学习与大数据融合</h3>
         <ul>
-            <li>系统的第一个核心是高空抛/坠<strong>“物”监测</strong>；</li>
-            <li>采用 <strong>Panoptic FPN ResNet-101</strong> 语义分割技术提取建筑物背景并使用类间距离蒸馏，并对运动对象进行去噪处理，同时引入 <strong>MA
-                    模块</strong>，加速信息流动效率；</li>
-            <li>最终使得高空抛物<strong>检出率</strong>稳定在 <strong>65%</strong> 以上，<strong>误报率</strong>小于
-                <strong>15%</strong>，理想情况下检出率可达 <strong>95%</strong>，误报率小于 <strong>5%</strong>。
-            </li>
+            <li>系统采用联邦学习机制，在保障隐私与数据安全的前提下，实现跨区域数据协同分析，突破"数据孤岛"限制，增强跨域追踪能力。</li>
+            <li>平台还具备强大的大数据分析能力，能自动整合历史检测数据，构建人物时空行为画像，为案件侦查提供全方位支持。</li>
         </ul>
-        <img src="image/README/1715679635883.jpg" alt="技术示意" />
 
-        <h3>高层建筑边缘危险行为监测</h3>
+        <h3>实战应用与操作便捷性</h3>
         <ul>
-            <li>第二个核心是高层建筑物边缘侧<strong>“人”</strong>的<strong>危险行为监测</strong>；</li>
-            <li>在同一个网络中<strong>融合时序信息和空间信息</strong>，捕捉视频中的动态行为和时间依赖特征，通过<strong>多头注意力和前馈网络</strong>处理；</li>
-            <li>最终使得人体检测率大于 <strong>70%</strong>，行为及危险系数确认<strong>误识率</strong>小于 <strong>15%</strong>，理想情况下检测率可达
-                <strong>95%</strong>，误报率小于 <strong>5%</strong>。
-            </li>
+            <li>平台配备可视化操作界面，支持警务人员高效完成视频检索、目标布控与轨迹分析等操作，真正实现从线索输入到智能预警的闭环式办案流程。</li>
         </ul>
-        <img src="image/README/1715679658779.jpg" alt="技术示意" />
 
-        <br>
-        <h2>数据集构建与开源</h2>
-        <ul>
-            <li>我们构建了高质量 <a
-                    href="https://pan.baidu.com/s/12ACPttrbEMglgN6v_PanEw?pwd=2333">高空抛物检测原创数据集</a>，涵盖丰富的场景及多样的抛物类别；
-            </li>
-        </ul>
-        <img src="image/README/1715679712273.jpg" alt="技术示意" style="zoom:50%;" />
-        <ul>
-            <li>以及高质量 <a
-                    href="https://pan.baidu.com/s/12ACPttrbEMglgN6v_PanEw?pwd=2333">高层危险行为原创数据集</a>，同样涉及丰富场景和多样的动作类别。
-            </li>
-        </ul>
-        <img src="image/README/1715679719404.jpg" alt="技术示意" style="zoom:50%;" />
+        <h2>核心技术突破</h2>
+        <h3>1. ALVG架构实现Visual Grounding算法的突破</h3>
+        <p>实现人物搜索功能</p>
+        <img src="img/image-7.png" alt="ALVG架构" />
 
-        <br>
-        <h2>系统实现</h2>
-        <ul>
-            <li>我们的系统坚持从<strong>双重监测角度</strong>出发，同时实现<strong>一体化通信</strong>和<strong>数据治理</strong>的交叉融合。</li>
-        </ul>
-        <img src="image/README/1715679775194.jpg" alt="系统实现" style="zoom:50%;" />
-        <br>
-        <img src="image/README/1715699167031.jpg" alt="系统实现" style="zoom:50%;" />
+        <h3>2. 融合红外视觉模态的联邦学习Reid系统</h3>
+        <p>实现针对行人的重识别功能</p>
+        <img src="img/image-8.png" alt="Reid系统" />
 
-        <br>
-        <h2>产学研一体</h2>
-        <ul>
-            <li>目前基于本作品已落实<strong>1项专利</strong>、<strong>3项软著</strong>、<strong>1篇学术论文</strong>以及<strong>2个原创数据集</strong>；
-            </li>
-        </ul>
-        <img src="image/README/1715697181278.png" alt="产研一体" style="zoom:50%;" />
-        <ul>
-            <li>本作品由<strong>深圳英飞拓智能技术有限公司</strong>提供硬件支持，促进应用研发过程；</li>
-        </ul>
-        <img src="image/README/1715679811207.jpg" alt="系统实现" style="zoom:50%;" />
-        <ul>
-            <li>并将本系统应用于<strong>深圳湾超级总部基地及其他多个园区</strong>，实现落地试点，带来广泛的社会效益和显著的科技示范效益。</li>
-        </ul>
-        <img src="image/README/1715679817826.png" alt="系统实现" style="zoom:50%;" />
+        <h3>3. 双数据库构建</h3>
+        <p>Faiss向量数据库以及常规数据库，实现快速数据存取</p>
+        <img src="img/image-9.png" alt="数据库架构" />
 
-        <br>
-        <h2>系统介绍视频</h2>
-        <video controls>
-            <source src="image/README/演示视频_系统.mp4" type="video/mp4">
-            您的浏览器不支持视频标签。
-        </video>
+        <h3>4. 多模态任务搜索与高精度人脸识别</h3>
+        <p>使用基于VFE-TPS的Clip模型实现文本搜索任务</p>
+        <img src="img/image-10.png" alt="多模态搜索" />
+
+        <h2>学术与应用成果</h2>
+        <ul>
+            <li>目前基于本作品已落实<strong>1项推广证明</strong>、<strong>1篇CCF-B学术论文收录</strong>，<strong>1篇CCF-A学术论文再投</strong>以及<strong>专利软件著作正在申请</strong></li>
+        </ul>
+        <img src="img/image-11.png" alt="学术成果" />
 
         <br>
         <h2>作者的话</h2>
         <footer>
             <ul>
-                <li>以上就是本作品的全部介绍~</li>
-            </ul>
-            <img src="image/README/1715680450611.jpg" alt="结尾图片" class="small-img" />
-            <ul>
-                <li><strong>驭科技以守护，持创新以护航</strong>，HaMonitorSentry 高层智能监测系统定会成为 <strong>智能安防，平安中国</strong>
-                    之船的重要组成部分，载着人民共同渡往安全幸福的彼方。</li>
+                <li><strong>科技赋能安防，智慧守护安全</strong>，"多模安御"系统将成为智慧城市建设的重要组成部分，为社会安全和公共治理提供强有力的技术支持。</li>
             </ul>
         </footer>
     </div>
 </body>
 
-</html>
+</html> 
